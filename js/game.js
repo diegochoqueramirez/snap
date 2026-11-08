@@ -3,6 +3,8 @@
 const LOG_LIMIT = 30;
 
 let nextCardUid = 0;
+// Global (no se reinicia con la partida) para que la UI siempre detecte una frase nueva.
+let nextSpeechId = 0;
 
 function shuffle(items) {
   const result = [...items];
@@ -35,6 +37,7 @@ function createGame() {
       maxHp: BOSS.maxHp,
       shield: 0,
       actionIndex: 0,
+      speech: null, // { id, text } — última frase dicha
     },
     drawPile: shuffle(STARTER_DECK.map(createCard)),
     hand: [],
@@ -43,8 +46,15 @@ function createGame() {
   };
 
   addLog(state, '¡Thanos te desafía! Derrótalo antes de que te derrote a ti.', 'info');
+  bossSay(state, BOSS_LINES.intro);
   startPlayerTurn(state);
   return state;
+}
+
+// Thanos dice una frase al azar de la lista. La UI decide cuánto tiempo se ve.
+function bossSay(state, lines) {
+  const text = lines[Math.floor(Math.random() * lines.length)];
+  state.boss.speech = { id: nextSpeechId++, text };
 }
 
 function addLog(state, text, kind) {
@@ -76,6 +86,14 @@ function startPlayerTurn(state) {
     // roba hasta completar la mano
   }
   addLog(state, `— Turno ${state.turn} —`, 'turn');
+  addLog(state, describeBossIntent(getBossIntent(state)), 'intent');
+}
+
+function describeBossIntent(action) {
+  const effect = action.type === CARD_TYPES.ATTACK
+    ? `atacará por ${action.value}`
+    : `ganará ${action.value} de escudo`;
+  return `Thanos prepara ${action.name}: ${effect}.`;
 }
 
 // Aplica daño respetando el escudo. Devuelve cuánto se bloqueó y cuánto entró.
@@ -109,6 +127,9 @@ function playCard(state, uid) {
   if (card.type === CARD_TYPES.ATTACK) {
     const { damage, blocked } = applyDamage(state.boss, card.value);
     addLog(state, `Usas ${card.name}: Thanos recibe ${describeDamage(damage, blocked)}.`, 'player');
+    if (state.boss.hp > 0 && Math.random() < BOSS_HIT_SPEECH_CHANCE) {
+      bossSay(state, BOSS_LINES.hit);
+    }
   } else if (card.type === CARD_TYPES.DEFENSE) {
     state.player.shield += card.value;
     addLog(state, `Usas ${card.name}: ganas ${card.value} de escudo.`, 'player');
@@ -142,6 +163,7 @@ function runBossTurn(state) {
     state.boss.shield += action.value;
     addLog(state, `Thanos usa ${action.name}: gana ${action.value} de escudo.`, 'boss');
   }
+  bossSay(state, action.lines);
   state.boss.actionIndex++;
 
   checkGameOver(state);

@@ -6,7 +6,7 @@ const els = {
   bossHpText: document.getElementById('boss-hp-text'),
   bossHpFill: document.getElementById('boss-hp-fill'),
   bossShield: document.getElementById('boss-shield'),
-  bossIntent: document.getElementById('boss-intent'),
+  bossSpeech: document.getElementById('boss-speech'),
   playerPanel: document.getElementById('player-panel'),
   playerHpText: document.getElementById('player-hp-text'),
   playerHpFill: document.getElementById('player-hp-fill'),
@@ -25,6 +25,11 @@ const els = {
 };
 
 let game = createGame();
+let shownSpeechId = null;
+let speechTimer = null;
+let typingTimer = null;
+let pendingSpeech = null; // frase que espera a que termine de escribirse la actual
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 function render() {
   renderBoss();
@@ -49,16 +54,87 @@ function renderBoss() {
   renderBar(els.bossHpText, els.bossHpFill, boss.hp, boss.maxHp);
   renderShield(els.bossShield, boss.shield);
 
-  const intent = getBossIntent(game);
   const isOver = game.phase === 'won' || game.phase === 'lost';
-  els.bossIntent.hidden = isOver;
-  els.bossIntent.className = `intent intent--${intent.type}`;
-  const effect = intent.type === CARD_TYPES.ATTACK ? `Ataca por ${intent.value}` : `Escudo +${intent.value}`;
-  els.bossIntent.innerHTML = `
-    <span class="intent__label">Próxima acción</span>
-    <span class="intent__name">${createSpriteSvg(intent.type)}${intent.name}</span>
-    <span class="intent__effect">${effect}</span>
-  `;
+  renderBossSpeech(isOver);
+}
+
+// Muestra cada frase nueva durante BOSS_SPEECH_MS. El estado no se limpia: solo se oculta la burbuja.
+function renderBossSpeech(isOver) {
+  const { speech } = game.boss;
+  if (isOver) {
+    pendingSpeech = null;
+    stopSpeech();
+    return;
+  }
+  if (!speech || speech.id === shownSpeechId) return;
+
+  shownSpeechId = speech.id;
+  // Si está escribiendo, la nueva espera (solo la última). Si no, reemplaza en el acto.
+  if (typingTimer) {
+    pendingSpeech = speech.text;
+  } else {
+    showSpeech(speech.text);
+  }
+}
+
+function stopSpeech() {
+  clearTimeout(speechTimer);
+  clearInterval(typingTimer);
+  typingTimer = null;
+  els.bossSpeech.hidden = true;
+}
+
+// Los 4s cuentan desde que aparece la burbuja, incluida la escritura.
+function showSpeech(text) {
+  stopSpeech();
+  els.bossSpeech.hidden = false;
+  speechTimer = setTimeout(() => {
+    els.bossSpeech.hidden = true;
+  }, BOSS_SPEECH_MS);
+  typeSpeech(text);
+}
+
+// Pasa las letras de .speech__rest (invisible) a .speech__typed de a una.
+function typeSpeech(text) {
+  const chars = Array.from(text);
+  const typed = createSpeechSpan('speech__typed', '');
+  const rest = createSpeechSpan('speech__rest', text);
+  const a11y = createSpeechSpan('speech__a11y', text);
+  typed.setAttribute('aria-hidden', 'true');
+  rest.setAttribute('aria-hidden', 'true');
+  els.bossSpeech.replaceChildren(typed, rest, a11y);
+
+  if (reducedMotion.matches) {
+    typed.textContent = text;
+    rest.textContent = '';
+    return;
+  }
+
+  let count = 0;
+  typingTimer = setInterval(() => {
+    count++;
+    typed.textContent = chars.slice(0, count).join('');
+    rest.textContent = chars.slice(count).join('');
+    if (count >= chars.length) {
+      clearInterval(typingTimer);
+      typingTimer = null;
+      showPendingSpeech();
+    }
+  }, BOSS_SPEECH_CHAR_MS);
+}
+
+function showPendingSpeech() {
+  if (pendingSpeech === null) return;
+  const text = pendingSpeech;
+  pendingSpeech = null;
+  showSpeech(text);
+}
+
+function createSpeechSpan(className, text) {
+  const span = document.createElement('span');
+  span.className = className;
+  span.textContent = text;
+  return span;
 }
 
 function renderPlayer() {

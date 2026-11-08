@@ -140,11 +140,6 @@ button.card:disabled {
   height: 48px;
 }
 
-.intent__name .sprite {
-  width: 16px;
-  height: 16px;
-}
-
 /* Carta con arte propio (Capitán América): el arte es toda la carta, el marco va dentro del sprite. */
 .card--hero {
   width: 132px;
@@ -282,64 +277,54 @@ button.card:disabled {
   height: 158px;
 }
 
-.intent {
-  --tail-color: #000;
+/* Frase de Thanos: a la izquierda de la carta, arriba. */
+.speech {
   position: absolute;
   top: 24px;
-  left: calc(50% + 70px);
+  right: calc(50% + 70px);
   z-index: 1;
   width: 210px;
   padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
   border: var(--pixel) solid #000;
   border-radius: 0;
   background: #fff;
   color: #000;
+  font-size: var(--font-sm);
   box-shadow: var(--shadow-hard);
 }
 
-.intent[hidden] {
+.speech[hidden] {
   display: none;
 }
 
-.intent--defense {
-  --tail-color: #000;
-  border-color: #000;
-  background: #fff;
+/* Letras aún no escritas: ocupan su lugar para que la burbuja no crezca mientras escribe. */
+.speech__rest {
+  visibility: hidden;
 }
 
-/* Cola pixel art: punta de un bloque a la izquierda, apuntando a Thanos. */
-.intent::after {
+/* Frase completa solo para lectores de pantalla: el aria-live la anuncia una vez, no letra por letra. */
+.speech__a11y {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Cola pixel art: punta de un bloque a la derecha, apuntando a Thanos. */
+.speech::after {
   content: "";
   position: absolute;
   top: 12px;
-  left: -4px;
+  right: -4px;
   width: 4px;
   height: 4px;
-  background: var(--tail-color);
+  background: #000;
   box-shadow:
-    0 4px 0 var(--tail-color),
-    0 8px 0 var(--tail-color),
-    -4px 4px 0 var(--tail-color);
-}
-
-.intent__label {
-  font-size: var(--font-sm);
-  letter-spacing: 0.08em;
-  color: #000;
-}
-
-.intent__name {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.intent__effect {
-  font-size: var(--font-sm);
-  color: #000;
+    0 4px 0 #000,
+    0 8px 0 #000,
+    4px 4px 0 #000;
 }
 
 /* ---------- Barras y estadísticas ---------- */
@@ -427,6 +412,7 @@ button.card:disabled {
 
 .log__item { color: var(--muted); }
 .log__item--boss { color: #d8a8ff; }
+.log__item--intent { color: var(--attack); }
 .log__item--turn { color: var(--gold); }
 .log__item--info { font-style: italic; }
 
@@ -696,10 +682,13 @@ button.card:disabled {
     width: 180px;
   }
 
-  .intent {
+  /* 8px (tamaño nativo de la fuente) para que entren palabras como "IMAGINAR!!!!" en 140px. */
+  .speech {
     width: 140px;
     top: 16px;
-    left: calc(50% + 40px);
+    right: calc(50% + 40px);
+    padding: 8px;
+    font-size: 8px;
   }
 
   .card__art {
