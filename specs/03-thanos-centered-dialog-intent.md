@@ -1,6 +1,6 @@
 # SPEC 03 — Thanos centrado con intención en caja de diálogo
 
-> **Status:** Aprobado
+> **Status:** Implementado
 > **Depends on:** SPEC 01, SPEC 02
 > **Date:** 2026-11-08
 > **Objective:** Centrar la carta de Thanos en pantalla y mostrar su próxima acción como una caja de diálogo pixel art encima de la carta, con la cola apuntando hacia él.
@@ -44,18 +44,18 @@ Sin datos nuevos. Solo cambian HTML y CSS; `ui.js` no cambia (sigue seteando `cl
 
 ## Acceptance criteria
 
-- [ ] El juego abre con `file://` sin errores en la consola.
-- [ ] El centro horizontal de `#boss-card` coincide con el centro del viewport (±1px) a 1280px y a 375px.
-- [ ] `#boss-intent` está encima de `#boss-card` y ambos comparten el mismo eje central.
-- [ ] La caja de diálogo mide el mismo ancho que la carta (210px / 180px en ≤560px).
-- [ ] La caja tiene una cola hacia abajo apuntando a la carta, hecha con bloques de 4px, sin `border-radius`.
-- [ ] La caja usa borde 4px y `--shadow-hard`; no hay gradientes ni blur.
-- [ ] La intención de ataque se ve roja y la de defensa azul.
-- [ ] La intención sigue mostrando la próxima acción de Thanos y se actualiza cada turno.
-- [ ] En victoria/derrota la intención se oculta y la carta de Thanos sigue centrada.
-- [ ] A 375px de ancho no hay scroll horizontal.
-- [ ] No cambió `game.js`, `cards.js` ni `ui.js`.
-- [ ] Se puede jugar una partida completa igual que antes.
+- [x] El juego abre con `file://` sin errores en la consola.
+- [x] El centro horizontal de `#boss-card` coincide con el centro del viewport (±1px) a 1280px y a 375px.
+- [x] `#boss-intent` está encima de `#boss-card` y ambos comparten el mismo eje central.
+- [x] La caja de diálogo mide el mismo ancho que la carta (210px / 180px en ≤560px).
+- [x] La caja tiene una cola hacia abajo apuntando a la carta, hecha con bloques de 4px, sin `border-radius`.
+- [x] La caja usa borde 4px y `--shadow-hard`; no hay gradientes ni blur.
+- [x] La intención de ataque se ve roja y la de defensa azul.
+- [x] La intención sigue mostrando la próxima acción de Thanos y se actualiza cada turno.
+- [x] En victoria/derrota la intención se oculta y la carta de Thanos sigue centrada.
+- [x] A 375px de ancho no hay scroll horizontal.
+- [x] No cambió `game.js`, `cards.js` ni `ui.js`.
+- [x] Se puede jugar una partida completa igual que antes.
 
 ## Decisions
 
