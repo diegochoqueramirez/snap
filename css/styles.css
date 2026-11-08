@@ -204,10 +204,9 @@ button.card:disabled {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  border: 1px solid var(--border);
-  border-left: 4px solid var(--attack);
+  border: 1px solid color-mix(in srgb, var(--attack) 55%, var(--border));
   border-radius: 10px;
-  background: rgba(0, 0, 0, 0.35);
+  background: color-mix(in srgb, var(--attack) 10%, rgba(0, 0, 0, 0.35));
 }
 
 .intent[hidden] {
@@ -215,7 +214,8 @@ button.card:disabled {
 }
 
 .intent--defense {
-  border-left-color: var(--defense);
+  border-color: color-mix(in srgb, var(--defense) 55%, var(--border));
+  background: color-mix(in srgb, var(--defense) 10%, rgba(0, 0, 0, 0.35));
 }
 
 .intent__label {
