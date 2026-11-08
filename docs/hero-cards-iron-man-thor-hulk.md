@@ -58,6 +58,20 @@ const STARTER_DECK = [
 
 Las cantidades no cambian (8 cartas): solo el contenido de `CARD_LIBRARY`. Si Hulk queda con una copia, el mazo sigue siendo de 8.
 
+## Qué hace cada héroe
+
+- **Thor (ataque, costo 2):** inflige 13 de daño a Thanos. Es la carta de ataque más fuerte del mazo. Si Thanos tiene escudo, primero se descuenta de ese escudo, como con cualquier ataque.
+- **Iron Man (defensa, costo 2):** gana 11 de escudo hasta tu próximo turno. Ese escudo bloquea el golpe de 11 de Thanos por completo.
+- **Hulk (curación, costo 2):** recupera 10 de vida, sin pasar de tu vida máxima.
+
+Resumen:
+
+| Héroe | Qué hace | Cuánto | Costo |
+| --- | --- | --- | --- |
+| Thor | Daño a Thanos | 13 | 2 |
+| Iron Man | Escudo para ti | 11 | 2 |
+| Hulk | Curación para ti | 10 | 2 |
+
 ## Formato visual
 
 Igual que SPEC 05, para cada héroe:
