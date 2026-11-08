@@ -2,6 +2,7 @@
 
 const els = {
   bossCard: document.getElementById('boss-card'),
+  bossArt: document.getElementById('boss-art'),
   bossHpText: document.getElementById('boss-hp-text'),
   bossHpFill: document.getElementById('boss-hp-fill'),
   bossShield: document.getElementById('boss-shield'),
@@ -55,7 +56,7 @@ function renderBoss() {
   const effect = intent.type === CARD_TYPES.ATTACK ? `Ataca por ${intent.value}` : `Escudo +${intent.value}`;
   els.bossIntent.innerHTML = `
     <span class="intent__label">Próxima acción</span>
-    <span class="intent__name"><span aria-hidden="true">${CARD_TYPE_ICONS[intent.type]}</span>${intent.name}</span>
+    <span class="intent__name">${createSpriteSvg(intent.type)}${intent.name}</span>
     <span class="intent__effect">${effect}</span>
   `;
 }
@@ -89,7 +90,7 @@ function createCardElement(card) {
   button.innerHTML = `
     <span class="card__cost">${card.cost}</span>
     <span class="card__name">${card.name}</span>
-    <span class="card__art" aria-hidden="true">${CARD_TYPE_ICONS[card.type]}</span>
+    <span class="card__art" aria-hidden="true">${createSpriteSvg(card.type)}</span>
     <span class="card__type">${CARD_TYPE_LABELS[card.type]}</span>
     <span class="card__desc">${card.description}</span>
   `;
@@ -171,4 +172,6 @@ els.hand.addEventListener('click', handleHandClick);
 els.endTurnBtn.addEventListener('click', handleEndTurn);
 els.restartBtn.addEventListener('click', handleRestart);
 
+// El retrato no depende del estado: se dibuja una sola vez.
+els.bossArt.innerHTML = createSpriteSvg('thanos');
 render();
