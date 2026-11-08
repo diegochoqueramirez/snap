@@ -80,20 +80,33 @@ function renderPlayer() {
   els.endTurnBtn.disabled = game.phase !== 'player';
 }
 
-function createCardElement(card) {
-  const button = document.createElement('button');
-  button.type = 'button';
-  button.className = `card card--${card.type}`;
-  button.dataset.uid = card.uid;
-  button.disabled = !canPlayCard(game, card);
-  button.setAttribute('aria-label', `${card.name}, costo ${card.cost}. ${card.description}`);
-  button.innerHTML = `
+// Carta con arte propio: el arte ocupa toda la carta; costo, daño y nombre van encima.
+function heroCardMarkup(card) {
+  return `
+    <span class="card__art card__art--hero" aria-hidden="true">${createSpriteSvg(card.sprite)}</span>
+    <span class="card__cost">${card.cost}</span>
+    <span class="card__value">${card.value}</span>
+  `;
+}
+
+function standardCardMarkup(card) {
+  return `
     <span class="card__cost">${card.cost}</span>
     <span class="card__name">${card.name}</span>
     <span class="card__art" aria-hidden="true">${createSpriteSvg(card.type)}</span>
     <span class="card__type">${CARD_TYPE_LABELS[card.type]}</span>
     <span class="card__desc">${card.description}</span>
   `;
+}
+
+function createCardElement(card) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = card.sprite ? `card card--hero card--${card.type}` : `card card--${card.type}`;
+  button.dataset.uid = card.uid;
+  button.disabled = !canPlayCard(game, card);
+  button.setAttribute('aria-label', `${card.name}, costo ${card.cost}. ${card.description}`);
+  button.innerHTML = card.sprite ? heroCardMarkup(card) : standardCardMarkup(card);
   return button;
 }
 
@@ -133,15 +146,45 @@ function flash(el, className) {
   el.classList.add(className);
 }
 
+// Lanza el escudo de Capitán América desde la carta hasta Thanos. Solo es visual:
+// el daño ya se aplicó en game.js. Con reducción de movimiento no se crea nada.
+function throwShield(fromRect, toRect) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const SHIELD_HALF_PX = 23; // mitad del sprite de 46px (23 celdas a ×2)
+  const fromX = fromRect.left + fromRect.width / 2;
+  const fromY = fromRect.top + fromRect.height / 2;
+  const toX = toRect.left + toRect.width / 2;
+  const toY = toRect.top + toRect.height / 2;
+
+  const shield = document.createElement('span');
+  shield.className = 'shield-throw';
+  shield.innerHTML = createSpriteSvg('captainShield');
+  shield.style.left = `${fromX - SHIELD_HALF_PX}px`;
+  shield.style.top = `${fromY - SHIELD_HALF_PX}px`;
+  shield.style.setProperty('--dx', `${toX - fromX}px`);
+  shield.style.setProperty('--dy', `${toY - fromY}px`);
+  shield.style.animationDuration = `${SHIELD_THROW_MS}ms`;
+  shield.addEventListener('animationend', () => shield.remove());
+  document.body.appendChild(shield);
+}
+
 function handleHandClick(event) {
   const cardEl = event.target.closest('[data-uid]');
   if (!cardEl || cardEl.disabled) return;
 
+  const card = game.hand.find((c) => c.uid === Number(cardEl.dataset.uid));
+  const fromRect = cardEl.getBoundingClientRect();
   const bossHpBefore = game.boss.hp;
   const bossShieldBefore = game.boss.shield;
   if (!playCard(game, Number(cardEl.dataset.uid))) return;
 
-  if (game.boss.hp < bossHpBefore || game.boss.shield < bossShieldBefore) {
+  const bossHit = game.boss.hp < bossHpBefore || game.boss.shield < bossShieldBefore;
+  if (card.sprite === 'captainAmerica') {
+    // El golpe se muestra cuando el escudo llega a Thanos.
+    throwShield(fromRect, els.bossCard.getBoundingClientRect());
+    if (bossHit) setTimeout(() => flash(els.bossCard, 'is-hit'), SHIELD_THROW_MS);
+  } else if (bossHit) {
     flash(els.bossCard, 'is-hit');
   }
   render();

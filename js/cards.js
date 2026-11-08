@@ -6,6 +6,7 @@ const BOSS_MAX_HP = 70;
 const ENERGY_PER_TURN = 3;
 const HAND_SIZE = 3;
 const BOSS_TURN_DELAY_MS = 800;
+const SHIELD_THROW_MS = 450;
 
 const CARD_TYPES = {
   ATTACK: 'attack',
@@ -21,11 +22,12 @@ const CARD_TYPE_LABELS = {
 
 const CARD_LIBRARY = {
   strike: {
-    name: 'Golpe',
+    name: 'Capitán América',
     type: CARD_TYPES.ATTACK,
     cost: 1,
     value: 6,
-    description: 'Inflige 6 de daño.',
+    description: 'Lanza su escudo: inflige 6 de daño.',
+    sprite: 'captainAmerica',
   },
   heavyStrike: {
     name: 'Golpe pesado',
