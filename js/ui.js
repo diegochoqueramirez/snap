@@ -173,5 +173,9 @@ els.endTurnBtn.addEventListener('click', handleEndTurn);
 els.restartBtn.addEventListener('click', handleRestart);
 
 // El retrato no depende del estado: se dibuja una sola vez.
-els.bossArt.innerHTML = createSpriteSvg('thanos');
+// Dos frames apilados; el de destello se muestra solo desde CSS.
+els.bossArt.innerHTML = `
+  <span class="boss-art__frame">${createSpriteSvg('thanos')}</span>
+  <span class="boss-art__frame boss-art__frame--glow">${createSpriteSvg('thanosGlow')}</span>
+`;
 render();

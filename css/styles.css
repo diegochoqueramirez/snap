@@ -197,12 +197,24 @@ button.card:disabled {
   display: grid;
   place-items: center;
   border-radius: 0;
-  background: var(--bg-2);
+  /* Negro puro, igual al fondo del sprite, para que el retrato se funda con el panel. */
+  background: #000;
+  position: relative;
 }
 
+/* Frame de destello encima del frame base, en la misma posición. */
+.boss-art__frame--glow {
+  position: absolute;
+  inset: 8px 0 0;
+  display: grid;
+  place-items: center;
+  visibility: hidden;
+}
+
+/* Retrato 43x79 a escala x2, igual en escritorio y móvil. */
 .boss-art .sprite {
-  width: 128px;
-  height: 128px;
+  width: 86px;
+  height: 158px;
 }
 
 .intent {
@@ -514,6 +526,17 @@ button.card:disabled {
   animation: pulse 0.4s steps(2);
 }
 
+/* Destello de las gemas: el frame thanosGlow se ve ~150ms (5%) de cada ciclo de 3s. */
+@keyframes glow {
+  /* Con steps(1, end) cada valor se mantiene hasta el siguiente keyframe. */
+  0% { visibility: hidden; }
+  95%, 100% { visibility: visible; }
+}
+
+.boss-art__frame--glow {
+  animation: glow 3s steps(1, end) infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -540,11 +563,6 @@ button.card:disabled {
 
   .card--boss {
     width: 180px;
-  }
-
-  .boss-art .sprite {
-    width: 96px;
-    height: 96px;
   }
 
   .intent {
