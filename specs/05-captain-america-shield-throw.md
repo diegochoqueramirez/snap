@@ -1,6 +1,6 @@
-# SPEC 04 — Carta de Capitán América con lanzamiento de escudo
+# SPEC 05 — Carta de Capitán América con lanzamiento de escudo
 
-> **Status:** Implementado (pendiente validación visual manual)
+> **Status:** Implementado
 > **Depends on:** SPEC 02
 > **Date:** 2026-11-08
 > **Objective:** Tematizar una carta del mazo con Capitán América: retrato pixel art estático y un escudo que vuela hacia Thanos al jugarla y le inflige el daño.
@@ -69,14 +69,14 @@ Convenciones:
 - [x] Todos los caracteres de los sprites existen en su paleta (o son `.`, transparente).
 - [x] El escudo coincide pixel a pixel con la grilla generada desde `shield_captain_america.png`.
 - [x] Los cuatro archivos JS pasan `node --check`.
-- [ ] El juego abre con `file://` sin errores en la consola.
-- [ ] La carta de Capitán América se ve como la referencia: arte completo, medallones de costo (izquierda) y daño (derecha), nombre abajo.
-- [ ] Al jugar Capitán América el escudo vuela de la carta a Thanos, y el golpe aparece al llegar.
-- [ ] El daño, el escudo de Thanos y el log son iguales que antes.
-- [ ] Con `prefers-reduced-motion: reduce` no hay vuelo del escudo y no quedan elementos en el DOM.
-- [ ] A 375px de ancho la mano no desborda ni hay scroll horizontal.
-- [ ] Las otras 3 cartas se ven igual que antes.
-- [ ] Se puede jugar una partida completa (victoria y derrota incluidas).
+- [x] El juego abre con `file://` sin errores en la consola.
+- [x] La carta de Capitán América se ve como la referencia: arte completo, medallones de costo (izquierda) y daño (derecha), nombre abajo.
+- [x] Al jugar Capitán América el escudo vuela de la carta a Thanos, y el golpe aparece al llegar.
+- [x] El daño, el escudo de Thanos y el log son iguales que antes.
+- [x] Con `prefers-reduced-motion: reduce` no hay vuelo del escudo y no quedan elementos en el DOM.
+- [x] A 375px de ancho la mano no desborda ni hay scroll horizontal.
+- [x] Las otras 3 cartas se ven igual que antes.
+- [x] Se puede jugar una partida completa (victoria y derrota incluidas).
 
 ## Decisions
 
