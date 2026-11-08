@@ -1,11 +1,11 @@
-# SPEC 07 — Cartas de Iron Man, Thor y Hulk
+# Cartas de Iron Man, Thor y Hulk — plan
 
 > **Status:** Propuesta
-> **Depends on:** SPEC 05
+> **Relacionado con:** SPEC 05 (Capitán América)
 > **Date:** 2026-11-08
 > **Objective:** Tematizar las tres cartas que quedan genéricas (`heavyStrike`, `shield`, `potion`) con Thor, Iron Man y Hulk, usando el mismo formato que Capitán América y el sistema actual de ataque, defensa, escudo y vida.
 
-## Por qué existe esta spec
+## Por qué existe este plan
 
 Capitán América (SPEC 05) ya tiene identidad propia: arte completo, medallones de costo y valor, y un efecto al jugarla. Las otras tres cartas siguen con el diseño genérico. Esta spec define qué carta representa a cada héroe, con qué números y qué efecto visual, para que se implemente de forma consistente.
 
