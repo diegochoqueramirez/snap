@@ -200,6 +200,8 @@ button.card:disabled {
   /* Negro puro, igual al fondo del sprite, para que el retrato se funda con el panel. */
   background: #000;
   position: relative;
+  /* El respiro mueve el sprite: el panel recorta para que no invada la carta. */
+  overflow: hidden;
 }
 
 /* Frame de destello encima del frame base, en la misma posición. */
@@ -557,6 +559,29 @@ button.card:disabled {
 
 .boss-art__frame--glow {
   animation: glow 3s steps(1, end) infinite;
+}
+
+/* Respiro idle: 3 respiros de 1.5s + 1 suspiro de 1.5s (ciclo de 6s).
+   Saltos de 2px = 1 pixel del sprite a escala x2. */
+@keyframes breathe {
+  0% { transform: translateY(0); }
+  12.5% { transform: translateY(-2px); }
+  25% { transform: translateY(0); }
+  37.5% { transform: translateY(-2px); }
+  50% { transform: translateY(0); }
+  62.5% { transform: translateY(-2px); }
+  /* Suspiro: inhala hondo, sostiene, exhala y los hombros caen. */
+  75% { transform: translateY(-2px); }
+  79% { transform: translateY(-4px); }
+  88% { transform: translateY(-2px); }
+  92% { transform: translateY(0); }
+  94% { transform: translateY(2px); }
+  98%, 100% { transform: translateY(0); }
+}
+
+/* Se anima el SVG (no el frame) para no pisar la animación glow; ambos frames se mueven juntos. */
+.boss-art .sprite {
+  animation: breathe 6s steps(1, end) infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
