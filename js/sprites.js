@@ -1,0 +1,347 @@
+// Sprites pixel art dibujados como grillas de caracteres.
+// Cada carácter mapea a un color de la paleta del sprite; '.' es transparente.
+// Solo presentación: no lee ni modifica el estado del juego.
+
+// Paleta compartida por los dos frames del retrato (colores exactos de la referencia).
+const THANOS_PALETTE = {
+  // Fondo y contornos.
+  k: '#000000',
+
+  // Oro del casco y del guantelete (sombra → luz).
+  '1': '#604700',
+  '2': '#6b5000',
+  '3': '#785a00',
+  '4': '#866500',
+  '5': '#967100',
+  '6': '#a77e00',
+  '7': '#ba8d01',
+  '8': '#d09d02',
+  '9': '#e8af03',
+
+  // Piel morada (sombra → luz).
+  a: '#58146e',
+  b: '#62177b',
+  c: '#6e1a89',
+  d: '#7b1e99',
+  e: '#8922ab',
+
+  // Destellos del casco.
+  x: '#cdc30e',
+  X: '#fff312',
+
+  // Dientes y brillos.
+  g: '#cdcdcd',
+  h: '#e5e5e5',
+  w: '#ffffff',
+
+  // Gema morada (base, claro, brillo).
+  M: '#d500f9',
+  N: '#e040fb',
+  O: '#f3e5f5',
+
+  // Gema azul (base, claro).
+  B: '#2196f3',
+  C: '#26c6da',
+
+  // Gema roja (base, claro).
+  R: '#ff2e57',
+  T: '#f59ab9',
+
+  // Gema naranja (base, claro, brillo).
+  J: '#ff6200',
+  K: '#ffe082',
+  L: '#ffe38e',
+
+  // Gema amarilla (base, borde, claro, brillo).
+  Y: '#ffff00',
+  Z: '#ffff1a',
+  U: '#ffe57f',
+  V: '#fffde7',
+
+  // Gema verde (base, claro, brillo).
+  G: '#76ff03',
+  H: '#ccff90',
+  I: '#f1f8e9',
+};
+
+const SPRITES = {
+  // Espada en diagonal (16x16).
+  attack: {
+    palette: {
+      k: '#0d0b16',
+      w: '#eee9ff',
+      g: '#a59cc4',
+      y: '#e3b341',
+      r: '#e5534b',
+    },
+    pixels: [
+      '.............kkk',
+      '............kwwk',
+      '...........kwwgk',
+      '..........kwwgk.',
+      '.........kwwgk..',
+      '........kwwgk...',
+      '...kk..kwwgk....',
+      '...kykkwwgk.....',
+      '....kyywgk......',
+      '.....kyyk.......',
+      '....krkyyk......',
+      '...krk.kyk......',
+      '..krk...kk......',
+      '.kyk............',
+      '.kk.............',
+      '................',
+    ],
+  },
+
+  // Escudo (16x16).
+  defense: {
+    palette: {
+      k: '#0d0b16',
+      l: '#6cb6ff',
+      b: '#4a90e2',
+      w: '#eee9ff',
+    },
+    pixels: [
+      '................',
+      '..kkkkkkkkkkkk..',
+      '..kllllllbbbbk..',
+      '..klwllllbbbbk..',
+      '..klwllllbbbbk..',
+      '..kllllllbbbbk..',
+      '..kllllllbbbbk..',
+      '..kllllllbbbbk..',
+      '...kllllllbbk...',
+      '...kllllllbbk...',
+      '....kllllbbk....',
+      '.....kllbbk.....',
+      '......klbk......',
+      '.......kk.......',
+      '................',
+      '................',
+    ],
+  },
+
+  // Corazón (16x16).
+  heal: {
+    palette: {
+      k: '#0d0b16',
+      g: '#3fb950',
+      d: '#2a7a38',
+      w: '#eee9ff',
+    },
+    pixels: [
+      '................',
+      '................',
+      '..kkkk....kkkk..',
+      '.kggggk..kggggk.',
+      'kggwwggkkggggggk',
+      'kgwwggggggggggdk',
+      'kgwgggggggggggdk',
+      'kggggggggggggddk',
+      '.kggggggggggddk.',
+      '..kggggggggddk..',
+      '...kggggggddk...',
+      '....kggggddk....',
+      '.....kggddk.....',
+      '......kddk......',
+      '.......kk.......',
+      '................',
+    ],
+  },
+
+  // Retrato de Thanos (43x79) basado en Referencias/Thanos pixel.png.
+  thanos: {
+    palette: THANOS_PALETTE,
+    pixels: [
+      'kkkkkkkkkkkkkkkkkkkkkkkkkkkk5kkkkkkkkkkkkkk',
+      'kkk6kkkkkkkkkkkkkkkkkkkkkkkk5kkkkkkkkkkkkkk',
+      'kkk5kkkkkkkkkkkkkkkkkkkkkkk55k5kkkkkkkkkkkk',
+      'k5k66kkkkkkkkkkkkkkkkkkkkkk5kkk5kkkkkkkkkkk',
+      'k5kk65kkkkkkkkkkkkkkkkkkkk5kkkk55kkkkkkkkkk',
+      'k5kkkk7kkkkkkkkkkkkkkkkkk5kkkkkk5kkkkkkkkkk',
+      '6kkkkkk65kkkkkkkkkkkkkkk7k66kkkk55kkkkkkkkk',
+      '6kkkkkkkk6666kkkkkkkkkk7k566666kkk7kkkkkkkk',
+      '6kkkkk666kk776kk555kk65k67kkkk766k6kkkkkkkk',
+      '6kkkk677766k8kk67787kkk88kxkkk78k68kkkkkkkk',
+      '7kkk688kkk878k78kkk87k89kxXxkkk776kkkkkkkkk',
+      '86k688kkxkkk8kkkccckkk9kkkxkkkkk97kkkkkkkkk',
+      '87778kkxXxkkkkkcdddckkkkkkkkkkkkkkkkkkkkkkk',
+      'k8kkkkkkxkkkkkckkekkckkkkckkkkkkkkkkkkkkkkk',
+      'kkkkkkkkkkkckkkkkkkkkkkkcdccccckk5kkkkkkkkk',
+      'kkkkkbcckcckkkkkkkkkkkkkkedddddck5kkkkkkkkk',
+      'kk5kkbddcdkkkkcckkkccccckkeeeedbk5kkkkkkkkk',
+      'kk5kbdeeekkkccdckkcdddddckkeeeekk5kkkkkkkkk',
+      'kk5kceekkkkcddedccdekkkedckkkkkkk6kkkkkkkkk',
+      'kk5kceekkkcdeeeeddekkkkkedckkkkk5kkkkkkkkkk',
+      'kk5kkekkkcdeeeekkkkgkgkkkdckkkk57kkkkkkkkkk',
+      'k5kkkkkkkceekkkkgkghkhkhkkkkkkk57kkkkkkkkkk',
+      'k5kkkkkkkckkwkwkwwwwkwkwkwkkkkk87kkkkkkkkkk',
+      'k5kkkkkkkkwkkkkkkkkkkkkkkkkkkkk78kkkkkkkkkk',
+      '55k6kkkkkkkkwkwkwkwwkwkwkwkkkkkk8kkkkkkkkkk',
+      '55k6kkkkkkkkkkkkkkkkkkkkkkkkkkkk8kkkkkkkkkk',
+      'k5k6kkkkkkkkkkkkkkkkkkkkkkkkkkkk8kkkkkkkkkk',
+      'kkk6kkkkkkkkcckkkcccckcckkkkkkkkkkkkkkkkkkk',
+      '66k6kkkkkkckcdcccddddcdckckkkkkkkkkkkkkkkkk',
+      'k7k6kkkkkkdckedddeeeedekcdckkkkkkkkkkkkkkkk',
+      'kkk6kkkkkkedkeeeeedeeeekdedkkkkkkkkkkkkkkkk',
+      'kkk7kkkakckekeedeedeedeeeedk665kkkkkkkkkkkk',
+      'kk8kkkkkcdkekeedeedeededkkk6k66kkkkkkkkkkkk',
+      'kk8kkkkdkekekeddeeekkkek55k66665kkkkkkkkkkk',
+      'kk8kkkckeeeeeddeekk655kkk7457k75kkkkkkkkkkk',
+      'kkkkkkdkedeedkeekk65kk65677k7k75kkkkkkkkkkk',
+      'kkkkkkekeekkkkkkk5kk55kk5k7k77k77kkkkkkkkkk',
+      'kkkkkkeeeekk54kkk5k566kk5k7k78kkk7kkkkkkkkk',
+      'kkkkkkeeek5k666kk6kk66k55k8kkkMMMk7kkkkkkkk',
+      'kkkkkkkeekkk56kkk5kk67777k8kkMNNNMk7kkkkkkk',
+      'kkkkkkkkkk3kkkk1k9kkkkkkkk8kMMNONMM7kkkkkkk',
+      'kkkkkk433k1k66k7k7kkBBBkkk8kMMNNNMMk7kkkkkk',
+      'kkkk44kkkk7k77k8kkkBCCCBkk8kMMMMMMMkkkkkkkk',
+      'kkk4kkk44k7k88k8kkBBCwCBBkk8kMMMMMkkkkkkkkk',
+      'kkkkk4k65k9k88k8kkBBCCCBBkkk8kMMMkk76kkkkkk',
+      'kkk4k6k77kkkkkk9kkBBBBBBBk8kk8kkkk8k76kkkkk',
+      'kk55k7k89kkRRRk9kkkBBBBBkk8kkkkk98kk7kkkkkk',
+      'kk56k8k99kRTTTRkkk8kBBBkk8kkkkkkk88k7kkkkkk',
+      'kk57k9k99kRTwTRk9kk8kkkk8kk9778k788k8kkkkkk',
+      'kk57k9kkkkRTTTRk88kkk889kk88768877876k55kkk',
+      'kk577kJJkkRRRRRk89899999876676k7k7677kk64kk',
+      'kkk7kJLKJkkRRRk9kkkk88kk55k544k5kk68k7kk45k',
+      'kkk6kJKKJk9kkk98kkkkk885k6kk5575kk77k66kk36',
+      'kkk6kJJJJkkk9888kk777787668k6556kk66kk66kk5',
+      'kkk59kJJkk99kk8k78kkkk88876kk666kk67kkk57k6',
+      'kk478kkk999k5677kkkkkkkk8k7kk5666k88kkkk7k5',
+      'kk4588k98kk7k598kkZZZZkkk88k75k68k9877887k5',
+      'kk5657k8kkk7k68kkYYYYYYkkk7k7kk5788k88kk6k5',
+      'kk5667k7kk68k88kkYUUUUUYkk8k7kk788kkGGGk6k3',
+      'kk56k6k78k67688kkYUVVUUYkk887kk77kkGHHGk7k4',
+      'kk46k6kk6666678kkYUVVUUYkk8865k77kGHIHGk84k',
+      'kk5787kk6666678kkYUUUUUYkk88k7k78kGHHGkk5kk',
+      'kk4687kk666kkk8kkYUUUUUYkk88k8kk8kGGGk85kkk',
+      'kk45k7kk86666k7kkYYYYYYYkk88k7k98888886kkkk',
+      'kkk5k7kk66kk6878kkYYYYYYkk88877889999k5kkkk',
+      'kkk5k8kk6766k7k8kkkYYYYkk89k777k9kkkk66kkkk',
+      'kkk4k8kk5655k6k98kkkkkkkk8kk77877k7kk4kkkkk',
+      'kkk55k68k86577kkk8kkkkkk89kk8k7kkk88k5kkkkk',
+      'kkkk48k78kk757k888kkkkkkk988887kkk89k4kkkkk',
+      'kkkkk4kk88876k6kkk8888k88k888kkkk87985kkkkk',
+      'kkkkk34k488k65576778999888k77kk678k54kkkkkk',
+      'kkkkkk6kk57kkk56577767796778kk78kkk51kkkkkk',
+      'kkkkkk44k56778kkkkkkkkkkkkkk656k766334kkkkk',
+      'kkkkkk55kkk456668776666655767kkk5k64k3kkkkk',
+      'kkkkkkk554k65kkk5kk56k66k6kkk65k464532kkkkk',
+      'kkkkkk7k75k5646k6k6k6k66k45kk56k67k42kkkkkk',
+      'kkkkk66kkk665k7566565k55k55kk8k54753325kkkk',
+      'kkkkk6kkkkk75k66k77667k5567kk7k5k56k442kkkk',
+      'kkkkk6k5k7kk43k57kk6kkk65k565k55kkkkkk5kkkk',
+    ],
+  },
+
+  // Frame de destello: igual que thanos pero con las gemas en su tono claro.
+  thanosGlow: {
+    palette: THANOS_PALETTE,
+    pixels: [
+      'kkkkkkkkkkkkkkkkkkkkkkkkkkkk5kkkkkkkkkkkkkk',
+      'kkk6kkkkkkkkkkkkkkkkkkkkkkkk5kkkkkkkkkkkkkk',
+      'kkk5kkkkkkkkkkkkkkkkkkkkkkk55k5kkkkkkkkkkkk',
+      'k5k66kkkkkkkkkkkkkkkkkkkkkk5kkk5kkkkkkkkkkk',
+      'k5kk65kkkkkkkkkkkkkkkkkkkk5kkkk55kkkkkkkkkk',
+      'k5kkkk7kkkkkkkkkkkkkkkkkk5kkkkkk5kkkkkkkkkk',
+      '6kkkkkk65kkkkkkkkkkkkkkk7k66kkkk55kkkkkkkkk',
+      '6kkkkkkkk6666kkkkkkkkkk7k566666kkk7kkkkkkkk',
+      '6kkkkk666kk776kk555kk65k67kkkk766k6kkkkkkkk',
+      '6kkkk677766k8kk67787kkk88kxkkk78k68kkkkkkkk',
+      '7kkk688kkk878k78kkk87k89kxXxkkk776kkkkkkkkk',
+      '86k688kkxkkk8kkkccckkk9kkkxkkkkk97kkkkkkkkk',
+      '87778kkxXxkkkkkcdddckkkkkkkkkkkkkkkkkkkkkkk',
+      'k8kkkkkkxkkkkkckkekkckkkkckkkkkkkkkkkkkkkkk',
+      'kkkkkkkkkkkckkkkkkkkkkkkcdccccckk5kkkkkkkkk',
+      'kkkkkbcckcckkkkkkkkkkkkkkedddddck5kkkkkkkkk',
+      'kk5kkbddcdkkkkcckkkccccckkeeeedbk5kkkkkkkkk',
+      'kk5kbdeeekkkccdckkcdddddckkeeeekk5kkkkkkkkk',
+      'kk5kceekkkkcddedccdekkkedckkkkkkk6kkkkkkkkk',
+      'kk5kceekkkcdeeeeddekkkkkedckkkkk5kkkkkkkkkk',
+      'kk5kkekkkcdeeeekkkkgkgkkkdckkkk57kkkkkkkkkk',
+      'k5kkkkkkkceekkkkgkghkhkhkkkkkkk57kkkkkkkkkk',
+      'k5kkkkkkkckkwkwkwwwwkwkwkwkkkkk87kkkkkkkkkk',
+      'k5kkkkkkkkwkkkkkkkkkkkkkkkkkkkk78kkkkkkkkkk',
+      '55k6kkkkkkkkwkwkwkwwkwkwkwkkkkkk8kkkkkkkkkk',
+      '55k6kkkkkkkkkkkkkkkkkkkkkkkkkkkk8kkkkkkkkkk',
+      'k5k6kkkkkkkkkkkkkkkkkkkkkkkkkkkk8kkkkkkkkkk',
+      'kkk6kkkkkkkkcckkkcccckcckkkkkkkkkkkkkkkkkkk',
+      '66k6kkkkkkckcdcccddddcdckckkkkkkkkkkkkkkkkk',
+      'k7k6kkkkkkdckedddeeeedekcdckkkkkkkkkkkkkkkk',
+      'kkk6kkkkkkedkeeeeedeeeekdedkkkkkkkkkkkkkkkk',
+      'kkk7kkkakckekeedeedeedeeeedk665kkkkkkkkkkkk',
+      'kk8kkkkkcdkekeedeedeededkkk6k66kkkkkkkkkkkk',
+      'kk8kkkkdkekekeddeeekkkek55k66665kkkkkkkkkkk',
+      'kk8kkkckeeeeeddeekk655kkk7457k75kkkkkkkkkkk',
+      'kkkkkkdkedeedkeekk65kk65677k7k75kkkkkkkkkkk',
+      'kkkkkkekeekkkkkkk5kk55kk5k7k77k77kkkkkkkkkk',
+      'kkkkkkeeeekk54kkk5k566kk5k7k78kkk7kkkkkkkkk',
+      'kkkkkkeeek5k666kk6kk66k55k8kkkNNNk7kkkkkkkk',
+      'kkkkkkkeekkk56kkk5kk67777k8kkNNNNNk7kkkkkkk',
+      'kkkkkkkkkk3kkkk1k9kkkkkkkk8kNNNONNN7kkkkkkk',
+      'kkkkkk433k1k66k7k7kkCCCkkk8kNNNNNNNk7kkkkkk',
+      'kkkk44kkkk7k77k8kkkCCCCCkk8kNNNNNNNkkkkkkkk',
+      'kkk4kkk44k7k88k8kkCCCwCCCkk8kNNNNNkkkkkkkkk',
+      'kkkkk4k65k9k88k8kkCCCCCCCkkk8kNNNkk76kkkkkk',
+      'kkk4k6k77kkkkkk9kkCCCCCCCk8kk8kkkk8k76kkkkk',
+      'kk55k7k89kkTTTk9kkkCCCCCkk8kkkkk98kk7kkkkkk',
+      'kk56k8k99kTTTTTkkk8kCCCkk8kkkkkkk88k7kkkkkk',
+      'kk57k9k99kTTwTTk9kk8kkkk8kk9778k788k8kkkkkk',
+      'kk57k9kkkkTTTTTk88kkk889kk88768877876k55kkk',
+      'kk577kKKkkTTTTTk89899999876676k7k7677kk64kk',
+      'kkk7kKLKKkkTTTk9kkkk88kk55k544k5kk68k7kk45k',
+      'kkk6kKKKKk9kkk98kkkkk885k6kk5575kk77k66kk36',
+      'kkk6kKKKKkkk9888kk777787668k6556kk66kk66kk5',
+      'kkk59kKKkk99kk8k78kkkk88876kk666kk67kkk57k6',
+      'kk478kkk999k5677kkkkkkkk8k7kk5666k88kkkk7k5',
+      'kk4588k98kk7k598kkUUUUkkk88k75k68k9877887k5',
+      'kk5657k8kkk7k68kkUUUUUUkkk7k7kk5788k88kk6k5',
+      'kk5667k7kk68k88kkUUUUUUUkk8k7kk788kkHHHk6k3',
+      'kk56k6k78k67688kkUUVVUUUkk887kk77kkHHHHk7k4',
+      'kk46k6kk6666678kkUUVVUUUkk8865k77kHHIHHk84k',
+      'kk5787kk6666678kkUUUUUUUkk88k7k78kHHHHkk5kk',
+      'kk4687kk666kkk8kkUUUUUUUkk88k8kk8kHHHk85kkk',
+      'kk45k7kk86666k7kkUUUUUUUkk88k7k98888886kkkk',
+      'kkk5k7kk66kk6878kkUUUUUUkk88877889999k5kkkk',
+      'kkk5k8kk6766k7k8kkkUUUUkk89k777k9kkkk66kkkk',
+      'kkk4k8kk5655k6k98kkkkkkkk8kk77877k7kk4kkkkk',
+      'kkk55k68k86577kkk8kkkkkk89kk8k7kkk88k5kkkkk',
+      'kkkk48k78kk757k888kkkkkkk988887kkk89k4kkkkk',
+      'kkkkk4kk88876k6kkk8888k88k888kkkk87985kkkkk',
+      'kkkkk34k488k65576778999888k77kk678k54kkkkkk',
+      'kkkkkk6kk57kkk56577767796778kk78kkk51kkkkkk',
+      'kkkkkk44k56778kkkkkkkkkkkkkk656k766334kkkkk',
+      'kkkkkk55kkk456668776666655767kkk5k64k3kkkkk',
+      'kkkkkkk554k65kkk5kk56k66k6kkk65k464532kkkkk',
+      'kkkkkk7k75k5646k6k6k6k66k45kk56k67k42kkkkkk',
+      'kkkkk66kkk665k7566565k55k55kk8k54753325kkkk',
+      'kkkkk6kkkkk75k66k77667k5567kk7k5k56k442kkkk',
+      'kkkkk6k5k7kk43k57kk6kkk65k565k55kkkkkk5kkkk',
+    ],
+  },
+};
+
+// Devuelve un <svg> con un <rect> por cada tramo horizontal de pixeles del mismo color.
+function createSpriteSvg(name) {
+  const sprite = SPRITES[name];
+  const height = sprite.pixels.length;
+  const width = sprite.pixels[0].length;
+  let rects = '';
+
+  sprite.pixels.forEach((row, y) => {
+    let x = 0;
+    while (x < row.length) {
+      const key = row[x];
+      let run = 1;
+      while (row[x + run] === key) run++;
+      if (key !== '.') {
+        rects += `<rect x="${x}" y="${y}" width="${run}" height="1" fill="${sprite.palette[key]}"/>`;
+      }
+      x += run;
+    }
+  });
+
+  return `<svg class="sprite sprite--${name}" viewBox="0 0 ${width} ${height}" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
+}

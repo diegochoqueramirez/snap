@@ -1,4 +1,20 @@
+@font-face {
+  font-family: "Press Start 2P";
+  src: url("../assets/fonts/PressStart2P-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
+  --font-pixel: "Press Start 2P", monospace;
+  --font-sm: 8px;
+  --font-md: 16px;
+  --font-lg: 24px;
+
+  --pixel: 4px;
+  --shadow-hard: var(--pixel) var(--pixel) 0 #000;
+
   --bg: #0d0b16;
   --bg-2: #171327;
   --surface: #221c38;
@@ -17,8 +33,6 @@
   --hp: #e5534b;
   --hp-player: #3fb950;
   --shield: #6cb6ff;
-
-  --radius: 14px;
 }
 
 * {
@@ -28,10 +42,11 @@
 body {
   margin: 0;
   min-height: 100vh;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-pixel);
+  font-size: var(--font-sm);
+  line-height: 1.5;
   color: var(--text);
-  background: radial-gradient(ellipse at top, #2a1850 0%, var(--bg) 65%);
-  background-color: var(--bg);
+  background: var(--bg);
 }
 
 .board {
@@ -55,13 +70,13 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  border: 2px solid var(--card-accent);
-  border-radius: var(--radius);
-  background: linear-gradient(160deg, var(--surface), var(--bg-2));
+  border: var(--pixel) solid var(--card-accent);
+  border-radius: 0;
+  background: var(--surface);
   color: var(--text);
   font: inherit;
   text-align: left;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  box-shadow: var(--shadow-hard);
 }
 
 .card--attack { --card-accent: var(--attack); }
@@ -70,13 +85,13 @@ body {
 
 button.card {
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  transition: transform 0.15s steps(2), box-shadow 0.15s steps(2), opacity 0.15s steps(2);
 }
 
 button.card:hover:not(:disabled),
 button.card:focus-visible {
-  transform: translateY(-10px);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.55), 0 0 0 2px var(--card-accent);
+  transform: translateY(-8px);
+  box-shadow: var(--pixel) calc(var(--pixel) * 3) 0 #000;
   outline: none;
 }
 
@@ -88,22 +103,21 @@ button.card:disabled {
 
 .card__cost {
   position: absolute;
-  top: -12px;
-  left: -12px;
+  top: -14px;
+  left: -14px;
   width: 30px;
   height: 30px;
   display: grid;
   place-items: center;
-  border: 2px solid var(--bg);
-  border-radius: 50%;
+  border: var(--pixel) solid var(--bg);
+  border-radius: 0;
   background: var(--energy);
   color: #1a1400;
-  font-weight: 800;
+  font-size: var(--font-md);
 }
 
 .card__name {
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-size: var(--font-sm);
   padding-left: 12px;
 }
 
@@ -111,22 +125,35 @@ button.card:disabled {
   height: 62px;
   display: grid;
   place-items: center;
-  border-radius: 8px;
-  font-size: 2rem;
+  border-radius: 0;
   background: color-mix(in srgb, var(--card-accent) 22%, transparent);
 }
 
+/* Sprites SVG: siempre a múltiplos enteros de su grilla para que se vean nítidos. */
+.sprite {
+  display: block;
+  flex-shrink: 0;
+}
+
+.card__art .sprite {
+  width: 48px;
+  height: 48px;
+}
+
+.intent__name .sprite {
+  width: 16px;
+  height: 16px;
+}
+
 .card__type {
-  font-size: 0.7rem;
-  font-weight: 700;
+  font-size: var(--font-sm);
   letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--card-accent);
 }
 
 .card__desc {
-  font-size: 0.8rem;
-  line-height: 1.3;
+  font-size: var(--font-sm);
+  line-height: 1.6;
   color: var(--muted);
 }
 
@@ -145,13 +172,13 @@ button.card:disabled {
   width: 210px;
   min-height: auto;
   gap: 8px;
-  background: linear-gradient(160deg, var(--boss), var(--boss-2));
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  background: var(--boss-2);
+  box-shadow: var(--shadow-hard);
 }
 
 .card__name--boss {
   padding-left: 0;
-  font-size: 1.3rem;
+  font-size: var(--font-md);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   text-align: center;
@@ -159,44 +186,36 @@ button.card:disabled {
 }
 
 .card__title {
-  font-size: 0.8rem;
+  font-size: var(--font-sm);
   font-style: italic;
   text-align: center;
   color: #d6c7f5;
 }
 
 .boss-art {
-  height: 110px;
+  padding: 8px 0 0;
   display: grid;
   place-items: center;
-  border-radius: 10px;
-  background:
-    radial-gradient(circle at 50% 35%, #9a6be0 0%, #4a2382 45%, #1d0d38 100%);
+  border-radius: 0;
+  /* Negro puro, igual al fondo del sprite, para que el retrato se funda con el panel. */
+  background: #000;
+  position: relative;
 }
 
-.boss-art__gems {
-  display: flex;
-  gap: 7px;
-  padding: 8px 10px;
-  border-radius: 999px;
-  background: linear-gradient(180deg, #f0c75e, #a77c1c);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+/* Frame de destello encima del frame base, en la misma posición. */
+.boss-art__frame--glow {
+  position: absolute;
+  inset: 8px 0 0;
+  display: grid;
+  place-items: center;
+  visibility: hidden;
 }
 
-.gem {
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  box-shadow: inset 0 -2px 3px rgba(0, 0, 0, 0.35), inset 0 2px 2px rgba(255, 255, 255, 0.45);
-  background: currentColor;
+/* Retrato 43x79 a escala x2, igual en escritorio y móvil. */
+.boss-art .sprite {
+  width: 86px;
+  height: 158px;
 }
-
-.gem--space { color: #3b82f6; }
-.gem--mind { color: #facc15; }
-.gem--reality { color: #ef4444; }
-.gem--power { color: #a855f7; }
-.gem--time { color: #22c55e; }
-.gem--soul { color: #f97316; }
 
 .intent {
   min-width: 180px;
@@ -204,9 +223,10 @@ button.card:disabled {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  border: 1px solid color-mix(in srgb, var(--attack) 55%, var(--border));
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--attack) 10%, rgba(0, 0, 0, 0.35));
+  border: var(--pixel) solid color-mix(in srgb, var(--attack) 55%, var(--border));
+  border-radius: 0;
+  background: color-mix(in srgb, var(--attack) 10%, var(--bg));
+  box-shadow: var(--shadow-hard);
 }
 
 .intent[hidden] {
@@ -215,24 +235,23 @@ button.card:disabled {
 
 .intent--defense {
   border-color: color-mix(in srgb, var(--defense) 55%, var(--border));
-  background: color-mix(in srgb, var(--defense) 10%, rgba(0, 0, 0, 0.35));
+  background: color-mix(in srgb, var(--defense) 10%, var(--bg));
 }
 
 .intent__label {
-  font-size: 0.7rem;
+  font-size: var(--font-sm);
   letter-spacing: 0.08em;
-  text-transform: uppercase;
   color: var(--muted);
 }
 
 .intent__name {
   display: flex;
-  gap: 6px;
-  font-weight: 700;
+  align-items: center;
+  gap: 8px;
 }
 
 .intent__effect {
-  font-size: 0.9rem;
+  font-size: var(--font-sm);
   color: var(--muted);
 }
 
@@ -253,21 +272,27 @@ button.card:disabled {
 .stat__row {
   display: flex;
   justify-content: space-between;
-  font-size: 0.85rem;
-  font-weight: 600;
+  align-items: baseline;
+  font-size: var(--font-sm);
+}
+
+/* Número de vida (ej. "30 / 30"). */
+.stat__row > :last-child {
+  font-size: var(--font-md);
 }
 
 .bar {
-  height: 12px;
-  border-radius: 999px;
-  background: rgba(0, 0, 0, 0.45);
+  height: 16px;
+  border: var(--pixel) solid #000;
+  border-radius: 0;
+  background: var(--bg-2);
   overflow: hidden;
 }
 
 .bar__fill {
   height: 100%;
   background: var(--hp);
-  transition: width 0.35s ease;
+  transition: width 0.35s steps(5);
 }
 
 .bar__fill--player {
@@ -276,10 +301,9 @@ button.card:disabled {
 
 .badge {
   align-self: center;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 0.85rem;
-  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 0;
+  font-size: var(--font-sm);
 }
 
 .badge[hidden] {
@@ -287,8 +311,8 @@ button.card:disabled {
 }
 
 .badge--shield {
-  border: 1px solid var(--shield);
-  background: rgba(108, 182, 255, 0.15);
+  border: var(--pixel) solid var(--shield);
+  background: color-mix(in srgb, var(--shield) 15%, var(--bg));
   color: var(--shield);
 }
 
@@ -297,9 +321,9 @@ button.card:disabled {
 .log {
   min-height: 0;
   padding: 10px 14px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.3);
+  border: var(--pixel) solid var(--border);
+  border-radius: 0;
+  background: var(--bg-2);
   overflow: auto;
   max-height: 160px;
 }
@@ -311,12 +335,12 @@ button.card:disabled {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 0.85rem;
+  font-size: var(--font-sm);
 }
 
 .log__item { color: var(--muted); }
 .log__item--boss { color: #d8a8ff; }
-.log__item--turn { color: var(--gold); font-weight: 600; }
+.log__item--turn { color: var(--gold); }
 .log__item--info { font-style: italic; }
 
 /* ---------- Jugador ---------- */
@@ -326,9 +350,10 @@ button.card:disabled {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: rgba(23, 19, 39, 0.8);
+  border: var(--pixel) solid var(--border);
+  border-radius: 0;
+  background: var(--bg-2);
+  box-shadow: var(--shadow-hard);
 }
 
 .player-stats {
@@ -346,20 +371,19 @@ button.card:disabled {
 }
 
 .energy__label {
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: var(--font-sm);
 }
 
 .energy__pips {
   display: flex;
-  gap: 6px;
+  gap: 4px;
 }
 
 .pip {
-  width: 18px;
-  height: 18px;
-  border: 2px solid var(--energy);
-  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  border: var(--pixel) solid var(--energy);
+  border-radius: 0;
 }
 
 .pip--full {
@@ -385,35 +409,43 @@ button.card:disabled {
 .piles {
   display: flex;
   gap: 14px;
-  font-size: 0.85rem;
+  font-size: var(--font-sm);
   color: var(--muted);
+}
+
+.piles strong {
+  font-weight: normal;
+  color: var(--text);
 }
 
 .turn-label {
   margin-left: auto;
-  font-weight: 600;
   color: var(--gold);
 }
 
 .btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 10px;
+  padding: 12px 16px;
+  border: var(--pixel) solid #000;
+  border-radius: 0;
   background: var(--gold);
   color: #1a1400;
   font: inherit;
-  font-weight: 700;
   cursor: pointer;
-  transition: filter 0.15s ease, transform 0.15s ease;
+  box-shadow: var(--shadow-hard);
+  transition: filter 0.15s steps(2), transform 0.15s steps(2), box-shadow 0.15s steps(2);
 }
 
 .btn:hover:not(:disabled) {
   filter: brightness(1.1);
-  transform: translateY(-1px);
+}
+
+.btn:active:not(:disabled) {
+  transform: translate(var(--pixel), var(--pixel));
+  box-shadow: none;
 }
 
 .btn:focus-visible {
-  outline: 3px solid var(--text);
+  outline: var(--pixel) solid var(--text);
   outline-offset: 2px;
 }
 
@@ -430,8 +462,7 @@ button.card:disabled {
   display: grid;
   place-items: center;
   padding: 16px;
-  background: rgba(5, 3, 12, 0.75);
-  backdrop-filter: blur(3px);
+  background: rgba(5, 3, 12, 0.85);
 }
 
 .overlay[hidden] {
@@ -441,10 +472,11 @@ button.card:disabled {
 .overlay__panel {
   width: min(360px, 100%);
   padding: 28px 24px;
-  border: 2px solid var(--gold);
-  border-radius: var(--radius);
+  border: var(--pixel) solid var(--gold);
+  border-radius: 0;
   background: var(--surface);
   text-align: center;
+  box-shadow: var(--shadow-hard);
 }
 
 .overlay[data-result="lost"] .overlay__panel {
@@ -452,12 +484,13 @@ button.card:disabled {
 }
 
 .overlay__title {
-  margin: 0 0 8px;
-  font-size: 2rem;
+  margin: 0 0 16px;
+  font-size: var(--font-lg);
+  font-weight: normal;
 }
 
 .overlay__text {
-  margin: 0 0 20px;
+  margin: 0 0 24px;
   color: var(--muted);
 }
 
@@ -477,11 +510,12 @@ button.card:disabled {
 }
 
 .is-hit {
-  animation: shake 0.35s ease;
+  /* steps() se aplica a cada tramo entre keyframes: el temblor avanza a saltos. */
+  animation: shake 0.35s steps(2);
 }
 
 .card--boss.is-hit {
-  box-shadow: 0 0 0 3px var(--attack), 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 0 var(--pixel) var(--attack), var(--shadow-hard);
 }
 
 .player-area.is-hit {
@@ -489,7 +523,18 @@ button.card:disabled {
 }
 
 .is-acting {
-  animation: pulse 0.4s ease;
+  animation: pulse 0.4s steps(2);
+}
+
+/* Destello de las gemas: el frame thanosGlow se ve ~150ms (5%) de cada ciclo de 3s. */
+@keyframes glow {
+  /* Con steps(1, end) cada valor se mantiene hasta el siguiente keyframe. */
+  0% { visibility: hidden; }
+  95%, 100% { visibility: visible; }
+}
+
+.boss-art__frame--glow {
+  animation: glow 3s steps(1, end) infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -509,9 +554,11 @@ button.card:disabled {
     gap: 12px;
   }
 
+  /* 3 cartas de 96px + 2 huecos de 8px caben en una fila a 375px. */
   .card {
-    width: 104px;
+    width: 96px;
     min-height: 168px;
+    padding: 12px 8px 8px;
   }
 
   .card--boss {
@@ -524,15 +571,19 @@ button.card:disabled {
 
   .card__art {
     height: 48px;
-    font-size: 1.6rem;
   }
 
-  .card__desc {
-    font-size: 0.72rem;
+  .card__art .sprite {
+    width: 32px;
+    height: 32px;
+  }
+
+  .player-area {
+    padding: 10px;
   }
 
   .hand {
-    gap: 12px;
+    gap: 8px;
   }
 
   .energy {

@@ -19,12 +19,6 @@ const CARD_TYPE_LABELS = {
   heal: 'Curación',
 };
 
-const CARD_TYPE_ICONS = {
-  attack: '⚔️',
-  defense: '🛡️',
-  heal: '❤️',
-};
-
 const CARD_LIBRARY = {
   strike: {
     name: 'Golpe',
