@@ -15,7 +15,7 @@ Capitán América se eligió por su escudo: el ataque de la carta se ve como el 
 **In:**
 
 - La carta `strike` (ataque, costo 1, 6 de daño, 3 copias en el mazo) pasa a ser **Capitán América**. Mecánica y números idénticos; cambian nombre, descripción y arte.
-- Carta completa en pixel art de Capitán América (sprite `captainAmerica`, 66×94 a ×2 = 132×188), remuestreada desde `Referencias/snap_captain_america.webp` con un script fuera del repo. El marco y el fondo van dentro del sprite, sin transparencias: la carta es rectangular. Muestreo puntual (`NEAREST`), no promedio, para que no se vea borroso.
+- Carta completa en pixel art de Capitán América (sprite `captainAmerica`, 66×94 a ×2 = 132×188), remuestreada desde `Referencias/snap_captain_america.webp` con un script fuera del repo. El marco y el fondo van dentro del sprite, sin transparencias: la carta es rectangular. Muestreo puntual (`NEAREST`), no promedio, para que no se vea borroso. El recorte es más ancho que el marco (x 170–850) para que "AMERICA" quepa dentro de la carta; el arte queda estirado horizontalmente ~8%.
 - El nombre "CAPTAIN AMERICA" viene horneado en el arte, tal cual está en la referencia. Los medallones de la referencia se borran del arte (se rellenan con el fondo cercano) para que no asomen detrás de los cuadros de costo y daño.
 - Medallón azul de costo arriba a la izquierda y medallón naranja de daño arriba a la derecha (HTML, para que los números sean datos del juego). 
 - Escudo pixel art (sprite `captainShield`, 23×23), copiado 1:1 de `Referencias/shield_captain_america.png` (fondo blanco exterior transparente).
