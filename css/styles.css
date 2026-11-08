@@ -145,6 +145,69 @@ button.card:disabled {
   height: 16px;
 }
 
+/* Carta con arte propio (Capitán América): el arte es toda la carta, el marco va dentro del sprite. */
+.card--hero {
+  width: 132px;
+  height: 188px;
+  padding: 0;
+  border: none;
+  background: #0b1230;
+}
+
+.card--hero .card__art {
+  position: absolute;
+  inset: 0;
+  height: auto;
+  background: none;
+}
+
+.card--hero .card__art .sprite {
+  width: 100%;
+  height: 100%;
+}
+
+/* Cuadros dentro de la carta: costo arriba a la izquierda (siempre) y valor a un lado según la acción.
+   Ataque: daño a la derecha. Defensa: escudo a la izquierda, debajo del costo. */
+.card--hero .card__cost,
+.card--hero .card__value {
+  position: absolute;
+  top: 4px;
+  left: auto;
+  right: auto;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: var(--pixel) solid #000;
+  border-radius: 0;
+  color: #fff;
+  font-size: var(--font-md);
+  text-shadow: 2px 2px 0 #000;
+  z-index: 1;
+}
+
+.card--hero .card__cost {
+  left: 4px;
+  background: #2a7bff;
+}
+
+.card--hero .card__value {
+  right: 4px;
+  background: #ffa726;
+}
+
+.card--attack .card__value {
+  right: 4px;
+  top: 4px;
+}
+
+.card--defense .card__value {
+  left: 4px;
+  top: 46px;
+  right: auto;
+}
+
+
 .card__type {
   font-size: var(--font-sm);
   letter-spacing: 0.08em;
@@ -561,6 +624,27 @@ button.card:disabled {
   animation: glow 3s steps(1, end) infinite;
 }
 
+/* Escudo de Capitán América volando hacia Thanos. Solo transform; steps() mantiene el pixel art.
+   La duración y el destino (--dx, --dy) los pone ui.js. */
+.shield-throw {
+  position: fixed;
+  z-index: 50;
+  pointer-events: none;
+  animation-name: shield-throw;
+  animation-timing-function: steps(6, end);
+  animation-fill-mode: forwards;
+}
+
+.shield-throw .sprite {
+  width: 46px;
+  height: 46px;
+}
+
+@keyframes shield-throw {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(var(--dx), var(--dy)) rotate(720deg); }
+}
+
 /* Respiro idle: 3 respiros de 1.5s + 1 suspiro de 1.5s (ciclo de 6s).
    Saltos de 2px = 1 pixel del sprite a escala x2. */
 @keyframes breathe {
@@ -626,6 +710,36 @@ button.card:disabled {
     width: 32px;
     height: 32px;
   }
+
+  .card--hero {
+    width: 96px;
+    height: 136px;
+    min-height: 0;
+    padding: 0;
+  }
+
+  .card--hero .card__cost,
+  .card--hero .card__value {
+    width: 28px;
+    height: 28px;
+    font-size: var(--font-sm);
+  }
+
+  .card--hero .card__cost {
+    left: 3px;
+    top: 3px;
+  }
+
+  .card--hero .card__value {
+    right: 3px;
+    top: 3px;
+  }
+
+  .card--defense .card__value {
+    top: 37px;
+    left: 3px;
+  }
+
 
   .player-area {
     padding: 10px;
