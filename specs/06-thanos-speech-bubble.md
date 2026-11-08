@@ -1,6 +1,6 @@
 # SPEC 06 — Frases de Thanos en burbuja de diálogo
 
-> **Status:** aprovado
+> **Status:** implementado
 > **Depends on:** SPEC 01, SPEC 03, SPEC 04
 > **Date:** 2026-11-08
 > **Objective:** Hacer que Thanos diga una frase en una burbuja al costado de su carta al empezar la partida, cada vez que actúa y, con 70% de probabilidad, cada vez que recibe una carta de ataque.
@@ -130,35 +130,35 @@ Convenciones:
 
 ## Acceptance criteria
 
-- [ ] El juego abre con `file://` sin errores en la consola.
-- [ ] Al abrir o reiniciar la partida, la burbuja muestra `LO VOY A GOZAR COMO NO LO PUEDES IMAGINAR!!!!`.
-- [ ] Cada vez que Thanos actúa, la burbuja muestra una frase de la lista de esa acción.
-- [ ] Al jugar una carta de ataque que no lo mata, Thanos habla en aproximadamente 7 de cada 10 casos (la constante vale `0.7`).
-- [ ] Una carta de ataque totalmente bloqueada por su escudo también puede hacerlo hablar.
-- [ ] Las cartas de defensa y curación nunca lo hacen hablar.
-- [ ] Si el ataque lo deja en 0 de vida, no aparece frase.
-- [ ] Cada frase se oculta 4s después de aparecer la burbuja.
-- [ ] Las letras aparecen de a una cada 40ms; la frase de inicio termina de escribirse en ~1.8s.
-- [ ] El tamaño de la burbuja no cambia mientras se escribe la frase.
-- [ ] Con `prefers-reduced-motion: reduce` la frase aparece completa de una vez.
-- [ ] Una frase nueva que llega con la anterior ya escrita la reemplaza en el acto y vuelve a contar 4s desde cero.
-- [ ] Una frase nueva que llega mientras la anterior se escribe espera a que termine de escribirse y después empieza.
-- [ ] Si llegan varias frases durante la escritura, solo se muestra la última de ellas después.
-- [ ] En victoria o derrota la burbuja no se ve, y no reaparece por una frase en espera.
-- [ ] La burbuja está a la izquierda de la carta de Thanos, arriba, con la cola apuntando a él (escritorio y ≤560px).
-- [ ] La burbuja usa fondo blanco, borde de 4px negro, sombra dura y cola de bloques de 4px; sin `border-radius`, gradientes ni blur.
-- [ ] Mostrar u ocultar la burbuja no mueve la carta de Thanos ni la mano.
-- [ ] A 375px y a 600px de ancho no hay scroll horizontal.
-- [ ] Las frases no aparecen en el registro de combate.
-- [ ] `BOSS_SPEECH_MS`, `BOSS_SPEECH_CHAR_MS`, `BOSS_HIT_SPEECH_CHANCE` y todas las frases están en `cards.js`.
-- [ ] `game.js` no toca el DOM ni usa timers.
-- [ ] No existe `#boss-intent` en el HTML ni reglas `.intent` en el CSS.
-- [ ] Al empezar cada turno del jugador, el registro muestra la próxima acción de Thanos justo encima de `— Turno N —`, con el texto `Thanos prepara <acción>: atacará por <N>.` o `Thanos prepara <acción>: ganará <N> de escudo.`
-- [ ] La próxima acción se ve en rojo (`--attack`), tanto para ataque como para defensa.
-- [ ] Lo que Thanos hizo sigue en lila, como antes.
-- [ ] En victoria o derrota no se anota próxima acción.
-- [ ] La vida de Thanos (`N / 70`) se lee completa en 1280px, 600px y 375px.
-- [ ] Se puede jugar una partida completa (jugar cartas, terminar turno, Thanos actúa, victoria y derrota) igual que antes.
+- [x] El juego abre con `file://` sin errores en la consola.
+- [x] Al abrir o reiniciar la partida, la burbuja muestra `LO VOY A GOZAR COMO NO LO PUEDES IMAGINAR!!!!`.
+- [x] Cada vez que Thanos actúa, la burbuja muestra una frase de la lista de esa acción.
+- [x] Al jugar una carta de ataque que no lo mata, Thanos habla en aproximadamente 7 de cada 10 casos (la constante vale `0.7`).
+- [x] Una carta de ataque totalmente bloqueada por su escudo también puede hacerlo hablar.
+- [x] Las cartas de defensa y curación nunca lo hacen hablar.
+- [x] Si el ataque lo deja en 0 de vida, no aparece frase.
+- [x] Cada frase se oculta 4s después de aparecer la burbuja.
+- [x] Las letras aparecen de a una cada 40ms; la frase de inicio termina de escribirse en ~1.8s.
+- [x] El tamaño de la burbuja no cambia mientras se escribe la frase.
+- [x] Con `prefers-reduced-motion: reduce` la frase aparece completa de una vez.
+- [x] Una frase nueva que llega con la anterior ya escrita la reemplaza en el acto y vuelve a contar 4s desde cero.
+- [x] Una frase nueva que llega mientras la anterior se escribe espera a que termine de escribirse y después empieza.
+- [x] Si llegan varias frases durante la escritura, solo se muestra la última de ellas después.
+- [x] En victoria o derrota la burbuja no se ve, y no reaparece por una frase en espera.
+- [x] La burbuja está a la izquierda de la carta de Thanos, arriba, con la cola apuntando a él (escritorio y ≤560px).
+- [x] La burbuja usa fondo blanco, borde de 4px negro, sombra dura y cola de bloques de 4px; sin `border-radius`, gradientes ni blur.
+- [x] Mostrar u ocultar la burbuja no mueve la carta de Thanos ni la mano.
+- [x] A 375px y a 600px de ancho no hay scroll horizontal.
+- [x] Las frases no aparecen en el registro de combate.
+- [x] `BOSS_SPEECH_MS`, `BOSS_SPEECH_CHAR_MS`, `BOSS_HIT_SPEECH_CHANCE` y todas las frases están en `cards.js`.
+- [x] `game.js` no toca el DOM ni usa timers.
+- [x] No existe `#boss-intent` en el HTML ni reglas `.intent` en el CSS.
+- [x] Al empezar cada turno del jugador, el registro muestra la próxima acción de Thanos justo encima de `— Turno N —`, con el texto `Thanos prepara <acción>: atacará por <N>.` o `Thanos prepara <acción>: ganará <N> de escudo.`
+- [x] La próxima acción se ve en rojo (`--attack`), tanto para ataque como para defensa.
+- [x] Lo que Thanos hizo sigue en lila, como antes.
+- [x] En victoria o derrota no se anota próxima acción.
+- [x] La vida de Thanos (`N / 70`) se lee completa en 1280px, 600px y 375px.
+- [x] Se puede jugar una partida completa (jugar cartas, terminar turno, Thanos actúa, victoria y derrota) igual que antes.
 
 ## Decisions
 
