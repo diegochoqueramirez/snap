@@ -1,0 +1,174 @@
+// Renderiza el estado del juego en el DOM y conecta los eventos del jugador.
+
+const els = {
+  bossCard: document.getElementById('boss-card'),
+  bossHpText: document.getElementById('boss-hp-text'),
+  bossHpFill: document.getElementById('boss-hp-fill'),
+  bossShield: document.getElementById('boss-shield'),
+  bossIntent: document.getElementById('boss-intent'),
+  playerPanel: document.getElementById('player-panel'),
+  playerHpText: document.getElementById('player-hp-text'),
+  playerHpFill: document.getElementById('player-hp-fill'),
+  playerShield: document.getElementById('player-shield'),
+  energy: document.getElementById('energy'),
+  hand: document.getElementById('hand'),
+  drawCount: document.getElementById('draw-count'),
+  discardCount: document.getElementById('discard-count'),
+  turnLabel: document.getElementById('turn-label'),
+  endTurnBtn: document.getElementById('end-turn-btn'),
+  logList: document.getElementById('log-list'),
+  endScreen: document.getElementById('end-screen'),
+  endTitle: document.getElementById('end-title'),
+  endText: document.getElementById('end-text'),
+  restartBtn: document.getElementById('restart-btn'),
+};
+
+let game = createGame();
+
+function render() {
+  renderBoss();
+  renderPlayer();
+  renderHand();
+  renderLog();
+  renderEndScreen();
+}
+
+function renderBar(textEl, fillEl, hp, maxHp) {
+  textEl.textContent = `${hp} / ${maxHp}`;
+  fillEl.style.width = `${(hp / maxHp) * 100}%`;
+}
+
+function renderShield(el, shield) {
+  el.textContent = `🛡️ ${shield}`;
+  el.hidden = shield === 0;
+}
+
+function renderBoss() {
+  const { boss } = game;
+  renderBar(els.bossHpText, els.bossHpFill, boss.hp, boss.maxHp);
+  renderShield(els.bossShield, boss.shield);
+
+  const intent = getBossIntent(game);
+  const isOver = game.phase === 'won' || game.phase === 'lost';
+  els.bossIntent.hidden = isOver;
+  els.bossIntent.className = `intent intent--${intent.type}`;
+  const effect = intent.type === CARD_TYPES.ATTACK ? `Ataca por ${intent.value}` : `Escudo +${intent.value}`;
+  els.bossIntent.innerHTML = `
+    <span class="intent__label">Próxima acción</span>
+    <span class="intent__name"><span aria-hidden="true">${CARD_TYPE_ICONS[intent.type]}</span>${intent.name}</span>
+    <span class="intent__effect">${effect}</span>
+  `;
+}
+
+function renderPlayer() {
+  const { player } = game;
+  renderBar(els.playerHpText, els.playerHpFill, player.hp, player.maxHp);
+  renderShield(els.playerShield, player.shield);
+
+  els.energy.innerHTML = '';
+  els.energy.setAttribute('aria-label', `Energía ${player.energy} de ${player.maxEnergy}`);
+  for (let i = 0; i < player.maxEnergy; i++) {
+    const pip = document.createElement('span');
+    pip.className = i < player.energy ? 'pip pip--full' : 'pip';
+    els.energy.appendChild(pip);
+  }
+
+  els.drawCount.textContent = game.drawPile.length;
+  els.discardCount.textContent = game.discardPile.length;
+  els.turnLabel.textContent = game.phase === 'boss' ? 'Turno de Thanos…' : `Turno ${game.turn}`;
+  els.endTurnBtn.disabled = game.phase !== 'player';
+}
+
+function createCardElement(card) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.className = `card card--${card.type}`;
+  button.dataset.uid = card.uid;
+  button.disabled = !canPlayCard(game, card);
+  button.setAttribute('aria-label', `${card.name}, costo ${card.cost}. ${card.description}`);
+  button.innerHTML = `
+    <span class="card__cost">${card.cost}</span>
+    <span class="card__name">${card.name}</span>
+    <span class="card__art" aria-hidden="true">${CARD_TYPE_ICONS[card.type]}</span>
+    <span class="card__type">${CARD_TYPE_LABELS[card.type]}</span>
+    <span class="card__desc">${card.description}</span>
+  `;
+  return button;
+}
+
+function renderHand() {
+  els.hand.innerHTML = '';
+  game.hand.forEach((card) => els.hand.appendChild(createCardElement(card)));
+}
+
+function renderLog() {
+  els.logList.innerHTML = '';
+  game.log.forEach((entry) => {
+    const li = document.createElement('li');
+    li.className = `log__item log__item--${entry.kind}`;
+    li.textContent = entry.text;
+    els.logList.appendChild(li);
+  });
+}
+
+function renderEndScreen() {
+  const isOver = game.phase === 'won' || game.phase === 'lost';
+  els.endScreen.hidden = !isOver;
+  if (!isOver) return;
+
+  const won = game.phase === 'won';
+  els.endScreen.dataset.result = game.phase;
+  els.endTitle.textContent = won ? '¡Victoria!' : 'Derrota';
+  els.endText.textContent = won
+    ? `Derrotaste a Thanos en ${game.turn} ${game.turn === 1 ? 'turno' : 'turnos'}.`
+    : 'Thanos chasqueó los dedos… Inténtalo de nuevo.';
+  els.restartBtn.focus();
+}
+
+// Reinicia la animación aunque la clase ya estuviera puesta.
+function flash(el, className) {
+  el.classList.remove(className);
+  void el.offsetWidth;
+  el.classList.add(className);
+}
+
+function handleHandClick(event) {
+  const cardEl = event.target.closest('[data-uid]');
+  if (!cardEl || cardEl.disabled) return;
+
+  const bossHpBefore = game.boss.hp;
+  const bossShieldBefore = game.boss.shield;
+  if (!playCard(game, Number(cardEl.dataset.uid))) return;
+
+  if (game.boss.hp < bossHpBefore || game.boss.shield < bossShieldBefore) {
+    flash(els.bossCard, 'is-hit');
+  }
+  render();
+}
+
+function handleEndTurn() {
+  if (!endPlayerTurn(game)) return;
+  render();
+
+  setTimeout(() => {
+    const playerHpBefore = game.player.hp;
+    runBossTurn(game);
+    flash(els.bossCard, 'is-acting');
+    if (game.player.hp < playerHpBefore) flash(els.playerPanel, 'is-hit');
+    render();
+  }, BOSS_TURN_DELAY_MS);
+}
+
+function handleRestart() {
+  game = createGame();
+  render();
+}
+
+[els.bossCard, els.playerPanel].forEach((el) => {
+  el.addEventListener('animationend', () => el.classList.remove('is-hit', 'is-acting'));
+});
+els.hand.addEventListener('click', handleHandClick);
+els.endTurnBtn.addEventListener('click', handleEndTurn);
+els.restartBtn.addEventListener('click', handleRestart);
+
+render();

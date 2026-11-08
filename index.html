@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cartas vs. Thanos</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💎</text></svg>">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <main class="board">
+    <section class="boss-area" aria-label="Thanos">
+      <article class="card card--boss" id="boss-card">
+        <span class="card__name card__name--boss">Thanos</span>
+        <div class="boss-art" aria-hidden="true">
+          <div class="boss-art__gems">
+            <span class="gem gem--space"></span>
+            <span class="gem gem--mind"></span>
+            <span class="gem gem--reality"></span>
+            <span class="gem gem--power"></span>
+            <span class="gem gem--time"></span>
+            <span class="gem gem--soul"></span>
+          </div>
+        </div>
+        <span class="card__title">El Titán Loco</span>
+        <div class="stat">
+          <div class="stat__row">
+            <span>Vida</span>
+            <span id="boss-hp-text"></span>
+          </div>
+          <div class="bar"><div class="bar__fill" id="boss-hp-fill"></div></div>
+        </div>
+        <span class="badge badge--shield" id="boss-shield" hidden></span>
+      </article>
+      <div class="intent" id="boss-intent"></div>
+    </section>
+
+    <section class="log" aria-label="Registro de combate">
+      <ol class="log__list" id="log-list" aria-live="polite"></ol>
+    </section>
+
+    <section class="player-area" id="player-panel" aria-label="Jugador">
+      <div class="player-stats">
+        <div class="stat stat--player">
+          <div class="stat__row">
+            <span>Tu vida</span>
+            <span id="player-hp-text"></span>
+          </div>
+          <div class="bar"><div class="bar__fill bar__fill--player" id="player-hp-fill"></div></div>
+        </div>
+        <span class="badge badge--shield" id="player-shield" hidden></span>
+        <div class="energy">
+          <span class="energy__label">Energía</span>
+          <div class="energy__pips" id="energy" role="img"></div>
+        </div>
+      </div>
+
+      <div class="hand" id="hand" aria-label="Tu mano"></div>
+
+      <div class="player-actions">
+        <div class="piles">
+          <span>Mazo: <strong id="draw-count">0</strong></span>
+          <span>Descarte: <strong id="discard-count">0</strong></span>
+        </div>
+        <span class="turn-label" id="turn-label"></span>
+        <button type="button" class="btn" id="end-turn-btn">Terminar turno</button>
+      </div>
+    </section>
+  </main>
+
+  <div class="overlay" id="end-screen" hidden>
+    <div class="overlay__panel" role="dialog" aria-modal="true" aria-labelledby="end-title">
+      <h2 class="overlay__title" id="end-title"></h2>
+      <p class="overlay__text" id="end-text"></p>
+      <button type="button" class="btn" id="restart-btn">Jugar de nuevo</button>
+    </div>
+  </div>
+
+  <script src="js/cards.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>
