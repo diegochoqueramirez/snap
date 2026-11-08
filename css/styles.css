@@ -8,7 +8,7 @@
 
 :root {
   --font-pixel: "Press Start 2P", monospace;
-  --font-sm: 8px;
+  --font-sm: 11px;
   --font-md: 16px;
   --font-lg: 24px;
 
@@ -160,11 +160,11 @@ button.card:disabled {
 /* ---------- Thanos ---------- */
 
 .boss-area {
+  position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap;
 }
 
 .card--boss {
@@ -218,14 +218,20 @@ button.card:disabled {
 }
 
 .intent {
-  min-width: 180px;
+  --tail-color: #000;
+  position: absolute;
+  top: 24px;
+  left: calc(50% + 70px);
+  z-index: 1;
+  width: 210px;
   padding: 12px 14px;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  border: var(--pixel) solid color-mix(in srgb, var(--attack) 55%, var(--border));
+  border: var(--pixel) solid #000;
   border-radius: 0;
-  background: color-mix(in srgb, var(--attack) 10%, var(--bg));
+  background: #fff;
+  color: #000;
   box-shadow: var(--shadow-hard);
 }
 
@@ -234,14 +240,30 @@ button.card:disabled {
 }
 
 .intent--defense {
-  border-color: color-mix(in srgb, var(--defense) 55%, var(--border));
-  background: color-mix(in srgb, var(--defense) 10%, var(--bg));
+  --tail-color: #000;
+  border-color: #000;
+  background: #fff;
+}
+
+/* Cola pixel art: punta de un bloque a la izquierda, apuntando a Thanos. */
+.intent::after {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: -4px;
+  width: 4px;
+  height: 4px;
+  background: var(--tail-color);
+  box-shadow:
+    0 4px 0 var(--tail-color),
+    0 8px 0 var(--tail-color),
+    -4px 4px 0 var(--tail-color);
 }
 
 .intent__label {
   font-size: var(--font-sm);
   letter-spacing: 0.08em;
-  color: var(--muted);
+  color: #000;
 }
 
 .intent__name {
@@ -252,7 +274,7 @@ button.card:disabled {
 
 .intent__effect {
   font-size: var(--font-sm);
-  color: var(--muted);
+  color: #000;
 }
 
 /* ---------- Barras y estadísticas ---------- */
@@ -566,7 +588,9 @@ button.card:disabled {
   }
 
   .intent {
-    width: 100%;
+    width: 140px;
+    top: 16px;
+    left: calc(50% + 40px);
   }
 
   .card__art {
