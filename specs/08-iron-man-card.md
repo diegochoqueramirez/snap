@@ -1,6 +1,6 @@
 # SPEC 08 — Carta de Iron Man con escudo sobre las cartas hero
 
-> **Status:** aprobado
+> **Status:** Implementado
 > **Depends on:** SPEC 05, SPEC 07
 > **Date:** 2026-11-08
 > **Objective:** Convertir la carta `shield` en Iron Man (costo 2, 11 de escudo) con el formato hero de SPEC 05 y un escudo hexagonal animado que envuelve las cartas hero de la mano mientras el jugador tenga escudo.
@@ -118,32 +118,32 @@ Convenciones:
 
 ## Acceptance criteria
 
-- [ ] `CARD_LIBRARY.shield` tiene nombre `Iron Man`, tipo `defense`, costo 2, valor 11, `sprite: 'ironMan'` y no tiene `effect`.
-- [ ] `CARD_LIBRARY.strike` tiene `effect: 'shieldThrow'`; el resto de sus campos no cambia.
-- [ ] `STARTER_DECK` no cambia (2 copias de `shield`).
-- [ ] `heavyStrike` y `potion` no cambian.
-- [ ] `ironMan` tiene 94 filas de 66 caracteres y todos sus caracteres existen en `IRON_MAN_PALETTE` (o son `.`).
-- [ ] `ui.js` no tiene ningún `if` por nombre de sprite; los efectos salen de `card.effect` y `CARD_EFFECTS`.
-- [ ] `IRON_SHIELD_FADE_MS` está en `cards.js`; `IRON_BARRIER_MS`, `IRON_SHIELD_MS` e `IRON_SHIELD_VIDEO` ya no existen.
-- [ ] `assets/iron-man-shield.png` existe (400×80, fondo transparente), no hay `.mp4` en `assets/` y el juego no carga nada de `Referencias/`.
-- [ ] La carta de Iron Man se ve como la referencia: arte completo, medallón de costo (izquierda), medallón de valor azul (derecha), "IRON MAN" abajo.
-- [ ] Jugar Iron Man descuenta 2 de energía y suma 11 al escudo del jugador.
-- [ ] Con 11 de escudo, el Golpe del Guantelete (11) no quita vida al jugador.
-- [ ] Al jugar Iron Man aparece con fade-in un óvalo de hexágonos que envuelve cada carta hero de la mano, y ninguna carta genérica lo muestra.
-- [ ] El óvalo sigue visible al jugar otra carta, al terminar el turno y mientras se espera el turno de Thanos, sin repetir el fade-in.
-- [ ] Después del turno de Thanos (escudo en 0) el óvalo se desvanece y no queda ningún `.card__shield` en el DOM.
-- [ ] Al reiniciar la partida no hay óvalo.
-- [ ] Alrededor del óvalo no se ve ningún rectángulo, tampoco en cartas deshabilitadas ni con el mouse encima.
-- [ ] Durante el escudo se puede hacer clic en las cartas de la mano.
-- [ ] Al jugar Iron Man, Thanos no tiembla.
-- [ ] Con `prefers-reduced-motion: reduce` no se crea ningún `.card__shield`.
-- [ ] No queda `.hand::after`, `is-barrier` ni `iron-barrier` en el CSS ni en `ui.js`.
-- [ ] Capitán América lanza el escudo y Thanos tiembla al llegar, igual que antes.
-- [ ] Golpe pesado sigue mostrando `is-hit` en Thanos al jugarse.
-- [ ] A 375px la mano no desborda ni hay scroll horizontal.
-- [ ] Los archivos JS pasan `node --check`.
-- [ ] El juego abre con `file://` sin errores en la consola.
-- [ ] Se puede jugar una partida completa (jugar cartas, terminar turno, Thanos actúa, victoria y derrota).
+- [x] `CARD_LIBRARY.shield` tiene nombre `Iron Man`, tipo `defense`, costo 2, valor 11, `sprite: 'ironMan'` y no tiene `effect`.
+- [x] `CARD_LIBRARY.strike` tiene `effect: 'shieldThrow'`; el resto de sus campos no cambia.
+- [x] `STARTER_DECK` no cambia (2 copias de `shield`).
+- [x] `heavyStrike` y `potion` no cambian.
+- [x] `ironMan` tiene 94 filas de 66 caracteres y todos sus caracteres existen en `IRON_MAN_PALETTE` (o son `.`).
+- [x] `ui.js` no tiene ningún `if` por nombre de sprite; los efectos salen de `card.effect` y `CARD_EFFECTS`.
+- [x] `IRON_SHIELD_FADE_MS` está en `cards.js`; `IRON_BARRIER_MS`, `IRON_SHIELD_MS` e `IRON_SHIELD_VIDEO` ya no existen.
+- [x] `assets/iron-man-shield.png` existe (400×80, fondo transparente), no hay `.mp4` en `assets/` y el juego no carga nada de `Referencias/`.
+- [x] La carta de Iron Man se ve como la referencia: arte completo, medallón de costo (izquierda), medallón de valor azul (derecha), "IRON MAN" abajo.
+- [x] Jugar Iron Man descuenta 2 de energía y suma 11 al escudo del jugador.
+- [x] Con 11 de escudo, el Golpe del Guantelete (11) no quita vida al jugador.
+- [x] Al jugar Iron Man aparece con fade-in un óvalo de hexágonos que envuelve cada carta hero de la mano, y ninguna carta genérica lo muestra.
+- [x] El óvalo sigue visible al jugar otra carta, al terminar el turno y mientras se espera el turno de Thanos, sin repetir el fade-in.
+- [x] Después del turno de Thanos (escudo en 0) el óvalo se desvanece y no queda ningún `.card__shield` en el DOM.
+- [x] Al reiniciar la partida no hay óvalo.
+- [x] Alrededor del óvalo no se ve ningún rectángulo, tampoco en cartas deshabilitadas ni con el mouse encima.
+- [x] Durante el escudo se puede hacer clic en las cartas de la mano.
+- [x] Al jugar Iron Man, Thanos no tiembla.
+- [x] Con `prefers-reduced-motion: reduce` no se crea ningún `.card__shield`.
+- [x] No queda `.hand::after`, `is-barrier` ni `iron-barrier` en el CSS ni en `ui.js`.
+- [x] Capitán América lanza el escudo y Thanos tiembla al llegar, igual que antes.
+- [x] Golpe pesado sigue mostrando `is-hit` en Thanos al jugarse.
+- [x] A 375px la mano no desborda ni hay scroll horizontal.
+- [x] Los archivos JS pasan `node --check`.
+- [x] El juego abre con `file://` sin errores en la consola.
+- [x] Se puede jugar una partida completa (jugar cartas, terminar turno, Thanos actúa, victoria y derrota).
 
 ## Decisions
 
