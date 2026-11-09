@@ -69,7 +69,7 @@ python3 -m http.server 8000
 ## Roadmap
 
 - [x] Nivel 1 jugable contra Thanos
-- [x] Nivel 2 contra Galactus con animación de entrada (SPEC 09)
+- [x] Nivel 2 contra Galactus con animación de entrada (SPEC 10)
 - [ ] Animaciones básicas al jugar cartas y recibir daño
 - [ ] Más cartas y habilidades especiales de Thanos (Gemas del Infinito)
 - [ ] Más niveles / bosses

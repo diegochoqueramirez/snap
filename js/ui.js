@@ -324,11 +324,17 @@ const SCENE_FADE_MS = 600; // la pantalla se oscurece
 const RAIN_FADE_MS = 900; // la lluvia aparece de a poco
 const SCENE_OUT_MS = 900; // tiempo que tarda la escena en apagarse antes de quitarse
 const RAIN_DROPS = 70;
+// Doctor Strange: la carta se queda en zoom un momento y luego se achica dentro de un portal.
+// El GIF repite su ciclo dos veces, así que se usa un solo ciclo de 27 cuadros. Para que el portal dure más sin
+// bajar los fps, el ciclo tiene cuadros intermedios (54 en total) y se reproduce a 40 ms por cuadro (2160 ms).
+// La carta se achica durante ese mismo tiempo.
+const STRANGE_HOLD_MS = 500; // la carta queda en zoom antes de absorberse
+const STRANGE_FRAME_MS = 40;
+const STRANGE_CIRCLE_FRAMES = 54;
+const STRANGE_CIRCLE_MS = STRANGE_CIRCLE_FRAMES * STRANGE_FRAME_MS;
+const STRANGE_CIRCLE_PX = 420; // lado del círculo (en CSS se limita a 90vw)
 
-// Oscurece la pantalla y prepara la lluvia (gotas que caen con transform). Devuelve la función que la apaga.
-function startScene() {
-  const dim = document.createElement('div');
-  dim.className = 'scene-dim';
+function createRain() {
   const rain = document.createElement('div');
   rain.className = 'scene-rain';
   for (let i = 0; i < RAIN_DROPS; i++) {
@@ -339,18 +345,22 @@ function startScene() {
     drop.style.animationDelay = `${-Math.random()}s`;
     rain.appendChild(drop);
   }
-  document.body.append(dim, rain);
+  return rain;
+}
+
+// Oscurece la pantalla y, si `withRain`, agrega la lluvia. Devuelve la función que apaga la escena.
+function startScene(withRain) {
+  const dim = document.createElement('div');
+  dim.className = 'scene-dim';
+  const layers = [dim];
+  if (withRain) layers.push(createRain());
+  document.body.append(...layers);
   void dim.offsetWidth; // reflow: las transiciones arrancan desde opacity 0
-  dim.classList.add('is-on');
-  rain.classList.add('is-on');
+  layers.forEach((el) => el.classList.add('is-on'));
 
   return () => {
-    dim.classList.remove('is-on');
-    rain.classList.remove('is-on');
-    setTimeout(() => {
-      dim.remove();
-      rain.remove();
-    }, SCENE_OUT_MS);
+    layers.forEach((el) => el.classList.remove('is-on'));
+    setTimeout(() => layers.forEach((el) => el.remove()), SCENE_OUT_MS);
   };
 }
 
@@ -367,13 +377,15 @@ function playExplosion(centerX, centerY, scale) {
   document.body.appendChild(boom);
 }
 
-// Copia la carta, la lleva al centro con zoom y giro, la hace explotar y luego llama a `done` (el rayo).
-function playCardExit(cardEl, fromRect, done) {
+// Copia la carta, la lleva al centro con zoom y giro y ejecuta el remate (`exit.finale`).
+// `exit`: { rain, hold, leave: 'fade' | 'absorb', leaveMs, finale(centerX, centerY, zoom), finaleMs, sceneMs }.
+// Llama a `done` cuando termina el remate y apaga la escena en `sceneMs`. Con reducción de movimiento, llama a `done` al momento.
+function playCardExit(cardEl, fromRect, exit, done) {
   if (reducedMotion.matches) {
     done();
     return;
   }
-  const endScene = startScene();
+  const endScene = startScene(exit.rain);
   const centerX = window.innerWidth / 2;
   const centerY = window.innerHeight / 2;
   const fromX = fromRect.left + fromRect.width / 2;
@@ -404,26 +416,87 @@ function playCardExit(cardEl, fromRect, done) {
   ghost.style.animationDuration = `${CARD_ZOOM_MS}ms`;
   ghost.addEventListener('animationend', () => {
     setTimeout(() => {
-      ghost.classList.add('is-fading');
-      playExplosion(centerX, centerY, zoom * 1.1);
-      setTimeout(() => ghost.remove(), CARD_FADE_MS);
-      setTimeout(done, EXPLOSION_MS);
-      setTimeout(endScene, EXPLOSION_MS + LIGHTNING_STRIKE_MS);
-    }, CARD_HOLD_MS);
+      // La copia sale con `exit.leave`: se desvanece (Thor) o se absorbe por el portal (Doctor Strange).
+      ghost.style.setProperty('--exit-ms', `${exit.leaveMs}ms`);
+      ghost.style.animationDuration = `${exit.leaveMs}ms`;
+      ghost.classList.add(exit.leave === 'absorb' ? 'is-absorbed' : 'is-fading');
+      exit.finale(centerX, centerY, zoom);
+      setTimeout(() => ghost.remove(), exit.leaveMs);
+      setTimeout(done, exit.finaleMs);
+      setTimeout(endScene, exit.sceneMs);
+    }, exit.hold);
   }, { once: true });
   document.body.appendChild(ghost);
 }
 
+// Salida de Thor: la carta explota en el centro (la escena incluye lluvia; el rayo va en `done`).
+// Salida con explosión (Thor, Capitán América, Iron Man): la carta explota en el centro y desaparece.
+const EXPLOSION_EXIT = {
+  rain: false,
+  hold: CARD_HOLD_MS,
+  leave: 'fade',
+  leaveMs: CARD_FADE_MS,
+  finale: (centerX, centerY, zoom) => playExplosion(centerX, centerY, zoom * 1.1),
+  finaleMs: EXPLOSION_MS,
+  sceneMs: EXPLOSION_MS,
+};
+
+// Thor además tiene lluvia y el rayo cae después de la explosión.
+const THOR_EXIT = {
+  ...EXPLOSION_EXIT,
+  rain: true,
+  sceneMs: EXPLOSION_MS + LIGHTNING_STRIKE_MS,
+};
+
+// Salida de Doctor Strange: sin lluvia. La carta se achica dentro del portal y el portal se reproduce una sola vez.
+const STRANGE_EXIT = {
+  rain: false,
+  hold: STRANGE_HOLD_MS,
+  leave: 'absorb',
+  leaveMs: STRANGE_CIRCLE_MS,
+  finale: (centerX, centerY) => playStrangeCircle(centerX, centerY),
+  finaleMs: STRANGE_CIRCLE_MS,
+  sceneMs: STRANGE_CIRCLE_MS,
+};
+
+// Círculo mágico centrado en (centerX, centerY). Solo es visual: la tira se recorre con steps() en CSS.
+function playStrangeCircle(centerX, centerY) {
+  const circle = document.createElement('span');
+  circle.className = 'strange-circle';
+  circle.style.left = `${centerX}px`;
+  circle.style.top = `${centerY}px`;
+  circle.style.width = `${STRANGE_CIRCLE_PX}px`;
+  circle.style.height = `${STRANGE_CIRCLE_PX}px`;
+  circle.style.animationDuration = `${STRANGE_CIRCLE_MS}ms`;
+  circle.addEventListener('animationend', () => circle.remove());
+  document.body.appendChild(circle);
+}
+
+// Destello verde del panel del jugador al curar.
+function flashHeal() {
+  els.playerPanel.style.setProperty('--heal-ms', `${HEAL_FLASH_MS}ms`);
+  flash(els.playerPanel, 'is-heal');
+}
+
 // Efecto visual de cada carta, por `card.effect`. `durationMs` marca cuándo aparece el golpe en Thanos.
-// `exitFirst`: la carta explota antes de que empiece el efecto.
+// `exit`: cómo sale la carta antes del efecto (si no existe, el efecto empieza al jugarla).
 const CARD_EFFECTS = {
-  shieldThrow: { play: throwShield, durationMs: SHIELD_THROW_MS },
+  // Capitán América: explota en el centro y luego su escudo vuela desde ese punto hasta Thanos.
+  shieldThrow: { play: throwShield, durationMs: SHIELD_THROW_MS, exit: EXPLOSION_EXIT },
   lightningStrike: {
     play: (fromRect, bossRect) => dropLightning(bossRect),
     durationMs: LIGHTNING_STRIKE_MS,
-    exitFirst: true,
+    exit: THOR_EXIT,
   },
+  // Iron Man: solo explota; su escudo ya lo dibuja renderHeroShields().
+  armorBurst: { play: () => {}, exit: EXPLOSION_EXIT },
+  healCircle: { play: flashHeal, exit: STRANGE_EXIT },
 };
+
+// Punto del centro de la pantalla, usado como origen cuando la carta ya explotó.
+function screenCenterRect() {
+  return { left: window.innerWidth / 2, top: window.innerHeight / 2, width: 0, height: 0 };
+}
 
 function handleHandClick(event) {
   const cardEl = event.target.closest('[data-uid]');
@@ -440,10 +513,12 @@ function handleHandClick(event) {
   if (effect) {
     // El golpe se muestra cuando el efecto llega a Thanos.
     const runEffect = () => {
-      effect.play(fromRect, els.bossCard.getBoundingClientRect());
+      // Si la carta explotó antes, el efecto sale del centro de la pantalla.
+      const origin = effect.exit ? screenCenterRect() : fromRect;
+      effect.play(origin, els.bossCard.getBoundingClientRect());
       if (bossHit) setTimeout(() => flash(els.bossCard, 'is-hit'), effect.durationMs);
     };
-    if (effect.exitFirst) playCardExit(cardEl, fromRect, runEffect);
+    if (effect.exit) playCardExit(cardEl, fromRect, effect.exit, runEffect);
     else runEffect();
   } else if (bossHit) {
     flash(els.bossCard, 'is-hit');

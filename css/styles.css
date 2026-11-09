@@ -84,9 +84,10 @@ body {
 .card--defense { --card-accent: var(--defense); }
 .card--heal { --card-accent: var(--heal); }
 
+/* Hover de las cartas: transición suave (antes steps(2), a saltos). */
 button.card {
   cursor: pointer;
-  transition: transform 0.15s steps(2), box-shadow 0.15s steps(2), opacity 0.15s steps(2);
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, opacity 0.2s ease-out;
 }
 
 button.card:hover:not(:disabled),
@@ -237,6 +238,11 @@ button.card:disabled {
 
 .card--defense .card__value::after {
   background: linear-gradient(180deg, #9fd0ff 0%, var(--defense) 55%, #2c6bc0 100%);
+}
+
+/* Curación (Doctor Strange): hexágono verde, igual que el de defensa en azul. */
+.card--heal .card__value::after {
+  background: linear-gradient(180deg, #b6f5c2 0%, var(--heal) 55%, #1f7a34 100%);
 }
 
 
@@ -766,9 +772,22 @@ button.card:disabled {
   animation-fill-mode: forwards;
 }
 
+/* Salida de Thor: la copia se desvanece. La duración la pone ui.js en --exit-ms. */
 .card-ghost.is-fading {
   opacity: 0;
-  transition: opacity 180ms ease-in;
+  transition: opacity var(--exit-ms, 180ms) ease-in;
+}
+
+/* Salida de Doctor Strange: la copia se achica hasta desaparecer dentro del portal, con la misma duración que el círculo.
+   Parte del mismo estado final del zoom (scale --zoom) y se encoge a 0. */
+.card-ghost.is-absorbed {
+  animation-name: card-absorb;
+  animation-timing-function: ease-in;
+}
+
+@keyframes card-absorb {
+  from { transform: perspective(800px) translate(var(--tx), var(--ty)) scale(var(--zoom)) rotateY(360deg); }
+  to { transform: perspective(800px) translate(var(--tx), var(--ty)) scale(0) rotateY(360deg); }
 }
 
 /* La carta viaja al centro de la pantalla (--tx, --ty), crece (--zoom) y gira una vuelta completa (rotateY). ui.js pone las variables. */
@@ -862,7 +881,7 @@ button.card:disabled {
 
 /* ---------- Entrada del nivel 2 (Galactus) ----------
    ui.js crea .entrance y agrega una clase is-<paso> en cada paso de ENTRANCE_MS (cards.js).
-   Cada paso reemplaza la animación de sus elementos. Los fotogramas están en el spec 09. */
+   Cada paso reemplaza la animación de sus elementos. Los fotogramas están en el spec 10. */
 .entrance {
   position: fixed;
   inset: 0;
@@ -1262,6 +1281,89 @@ button.card:disabled {
 @keyframes banner-in {
   from { opacity: 1; transform: translateX(-100%); }
   to { opacity: 1; transform: translateX(0); }
+/* Destello verde del panel al curar (Doctor Strange). Solo box-shadow; la duración la pone ui.js en --heal-ms. */
+.is-heal {
+  animation: heal-glow var(--heal-ms, 300ms) ease-out;
+}
+
+@keyframes heal-glow {
+  0% { box-shadow: 0 0 0 var(--pixel) var(--heal), 0 0 18px var(--heal); }
+  100% { box-shadow: 0 0 0 0 transparent, 0 0 0 transparent; }
+}
+
+/* Círculo mágico de Doctor Strange: el ciclo del GIF (27 cuadros) con cuadros intermedios (54 en total) en una
+   tira de 8x7 cuadros (assets/strange-circle.webp). Cada cuadro ocupa todo el círculo (background-size 800% 700%).
+   step-end en cada keyframe hace saltos entre cuadros a 40 ms (25 fps, como el GIF original).
+   ui.js pone la posición, el tamaño y la duración (una sola vez). */
+.strange-circle {
+  position: fixed;
+  z-index: 62;
+  width: min(420px, 90vw);
+  height: min(420px, 90vw);
+  transform: translate(-50%, -50%);
+  background: url('../assets/strange-circle.webp') 0 0 / 800% 700% no-repeat;
+  pointer-events: none;
+  animation-name: strange-circle-frames;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+@keyframes strange-circle-frames {
+  0.0000% { background-position: 0.0000% 0.0000%; animation-timing-function: step-end; }
+  1.8519% { background-position: 14.2857% 0.0000%; animation-timing-function: step-end; }
+  3.7037% { background-position: 28.5714% 0.0000%; animation-timing-function: step-end; }
+  5.5556% { background-position: 42.8571% 0.0000%; animation-timing-function: step-end; }
+  7.4074% { background-position: 57.1429% 0.0000%; animation-timing-function: step-end; }
+  9.2593% { background-position: 71.4286% 0.0000%; animation-timing-function: step-end; }
+  11.1111% { background-position: 85.7143% 0.0000%; animation-timing-function: step-end; }
+  12.9630% { background-position: 100.0000% 0.0000%; animation-timing-function: step-end; }
+  14.8148% { background-position: 0.0000% 16.6667%; animation-timing-function: step-end; }
+  16.6667% { background-position: 14.2857% 16.6667%; animation-timing-function: step-end; }
+  18.5185% { background-position: 28.5714% 16.6667%; animation-timing-function: step-end; }
+  20.3704% { background-position: 42.8571% 16.6667%; animation-timing-function: step-end; }
+  22.2222% { background-position: 57.1429% 16.6667%; animation-timing-function: step-end; }
+  24.0741% { background-position: 71.4286% 16.6667%; animation-timing-function: step-end; }
+  25.9259% { background-position: 85.7143% 16.6667%; animation-timing-function: step-end; }
+  27.7778% { background-position: 100.0000% 16.6667%; animation-timing-function: step-end; }
+  29.6296% { background-position: 0.0000% 33.3333%; animation-timing-function: step-end; }
+  31.4815% { background-position: 14.2857% 33.3333%; animation-timing-function: step-end; }
+  33.3333% { background-position: 28.5714% 33.3333%; animation-timing-function: step-end; }
+  35.1852% { background-position: 42.8571% 33.3333%; animation-timing-function: step-end; }
+  37.0370% { background-position: 57.1429% 33.3333%; animation-timing-function: step-end; }
+  38.8889% { background-position: 71.4286% 33.3333%; animation-timing-function: step-end; }
+  40.7407% { background-position: 85.7143% 33.3333%; animation-timing-function: step-end; }
+  42.5926% { background-position: 100.0000% 33.3333%; animation-timing-function: step-end; }
+  44.4444% { background-position: 0.0000% 50.0000%; animation-timing-function: step-end; }
+  46.2963% { background-position: 14.2857% 50.0000%; animation-timing-function: step-end; }
+  48.1481% { background-position: 28.5714% 50.0000%; animation-timing-function: step-end; }
+  50.0000% { background-position: 42.8571% 50.0000%; animation-timing-function: step-end; }
+  51.8519% { background-position: 57.1429% 50.0000%; animation-timing-function: step-end; }
+  53.7037% { background-position: 71.4286% 50.0000%; animation-timing-function: step-end; }
+  55.5556% { background-position: 85.7143% 50.0000%; animation-timing-function: step-end; }
+  57.4074% { background-position: 100.0000% 50.0000%; animation-timing-function: step-end; }
+  59.2593% { background-position: 0.0000% 66.6667%; animation-timing-function: step-end; }
+  61.1111% { background-position: 14.2857% 66.6667%; animation-timing-function: step-end; }
+  62.9630% { background-position: 28.5714% 66.6667%; animation-timing-function: step-end; }
+  64.8148% { background-position: 42.8571% 66.6667%; animation-timing-function: step-end; }
+  66.6667% { background-position: 57.1429% 66.6667%; animation-timing-function: step-end; }
+  68.5185% { background-position: 71.4286% 66.6667%; animation-timing-function: step-end; }
+  70.3704% { background-position: 85.7143% 66.6667%; animation-timing-function: step-end; }
+  72.2222% { background-position: 100.0000% 66.6667%; animation-timing-function: step-end; }
+  74.0741% { background-position: 0.0000% 83.3333%; animation-timing-function: step-end; }
+  75.9259% { background-position: 14.2857% 83.3333%; animation-timing-function: step-end; }
+  77.7778% { background-position: 28.5714% 83.3333%; animation-timing-function: step-end; }
+  79.6296% { background-position: 42.8571% 83.3333%; animation-timing-function: step-end; }
+  81.4815% { background-position: 57.1429% 83.3333%; animation-timing-function: step-end; }
+  83.3333% { background-position: 71.4286% 83.3333%; animation-timing-function: step-end; }
+  85.1852% { background-position: 85.7143% 83.3333%; animation-timing-function: step-end; }
+  87.0370% { background-position: 100.0000% 83.3333%; animation-timing-function: step-end; }
+  88.8889% { background-position: 0.0000% 100.0000%; animation-timing-function: step-end; }
+  90.7407% { background-position: 14.2857% 100.0000%; animation-timing-function: step-end; }
+  92.5926% { background-position: 28.5714% 100.0000%; animation-timing-function: step-end; }
+  94.4444% { background-position: 42.8571% 100.0000%; animation-timing-function: step-end; }
+  96.2963% { background-position: 57.1429% 100.0000%; animation-timing-function: step-end; }
+  98.1481% { background-position: 71.4286% 100.0000%; animation-timing-function: step-end; }
+  100% { background-position: 71.4286% 100.0000%; }
 }
 
 /* Respiro idle: 3 respiros de 1.5s + 1 suspiro de 1.5s (ciclo de 6s).

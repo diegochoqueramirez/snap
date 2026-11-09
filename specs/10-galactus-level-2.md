@@ -1,4 +1,4 @@
-# SPEC 09 — Nivel 2 contra Galactus con animación de entrada
+# SPEC 10 — Nivel 2 contra Galactus con animación de entrada
 
 > **Status:** Implementado
 > **Depends on:** SPEC 05, SPEC 07, SPEC 08
