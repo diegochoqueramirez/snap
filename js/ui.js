@@ -222,28 +222,173 @@ function flash(el, className) {
   el.classList.add(className);
 }
 
-// Lanza el escudo de Capitán América desde la carta hasta Thanos. Solo es visual:
+// Vuela un elemento desde el centro de la carta hasta el centro de Thanos. Solo es visual:
 // el daño ya se aplicó en game.js. Con reducción de movimiento no se crea nada.
-function throwShield(fromRect, toRect) {
+function flyFromCard(className, markup, fromRect, toRect, halfPx, durationMs) {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  const SHIELD_HALF_PX = 23; // mitad del sprite de 46px (23 celdas a ×2)
   const fromX = fromRect.left + fromRect.width / 2;
   const fromY = fromRect.top + fromRect.height / 2;
   const toX = toRect.left + toRect.width / 2;
   const toY = toRect.top + toRect.height / 2;
 
-  const shield = document.createElement('span');
-  shield.className = 'shield-throw';
-  shield.innerHTML = createSpriteSvg('captainShield');
-  shield.style.left = `${fromX - SHIELD_HALF_PX}px`;
-  shield.style.top = `${fromY - SHIELD_HALF_PX}px`;
-  shield.style.setProperty('--dx', `${toX - fromX}px`);
-  shield.style.setProperty('--dy', `${toY - fromY}px`);
-  shield.style.animationDuration = `${SHIELD_THROW_MS}ms`;
-  shield.addEventListener('animationend', () => shield.remove());
-  document.body.appendChild(shield);
+  const el = document.createElement('span');
+  el.className = className;
+  el.innerHTML = markup;
+  el.style.left = `${fromX - halfPx}px`;
+  el.style.top = `${fromY - halfPx}px`;
+  el.style.setProperty('--dx', `${toX - fromX}px`);
+  el.style.setProperty('--dy', `${toY - fromY}px`);
+  el.style.animationDuration = `${durationMs}ms`;
+  el.addEventListener('animationend', () => el.remove());
+  document.body.appendChild(el);
 }
+
+function throwShield(fromRect, toRect) {
+  const SHIELD_HALF_PX = 23; // mitad del sprite de 46px (23 celdas a ×2)
+  flyFromCard('shield-throw', createSpriteSvg('captainShield'), fromRect, toRect, SHIELD_HALF_PX, SHIELD_THROW_MS);
+}
+
+// Rayo de Thor: tira de cuadros (sprite lightningStrike) con el impacto sobre la cabeza de Thanos.
+// Solo es visual; con reducción de movimiento no se crea nada.
+const LIGHTNING_FRAME_PX = 100; // ancho de un cuadro en CSS (50 celdas a ×2)
+const LIGHTNING_HEIGHT_PX = 92; // alto del sprite en CSS (46 celdas a ×2)
+
+function dropLightning(bossRect) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const bolt = document.createElement('span');
+  bolt.className = 'lightning-strike';
+  bolt.innerHTML = createSpriteSvg('lightningStrike');
+  // El impacto (base del rayo) cae en el centro de la carta de Thanos.
+  const impactY = bossRect.top + bossRect.height / 2;
+  bolt.style.left = `${bossRect.left + bossRect.width / 2 - LIGHTNING_FRAME_PX / 2}px`;
+  bolt.style.top = `${impactY - LIGHTNING_HEIGHT_PX}px`;
+  // El rayo cae desde el borde superior de la pantalla: empieza desplazado hacia arriba lo que mide el trayecto.
+  bolt.style.setProperty('--travel', `${-impactY}px`);
+  bolt.style.animationDuration = `${LIGHTNING_STRIKE_MS}ms`;
+  // La tira de cuadros se desliza dentro de la ventana (el SVG); la caída mueve la ventana entera.
+  bolt.querySelector('.sprite').style.animationDuration = `${LIGHTNING_STRIKE_MS}ms`;
+  bolt.addEventListener('animationend', (event) => {
+    if (event.target === bolt) bolt.remove();
+  });
+  document.body.appendChild(bolt);
+}
+
+// Thor: la carta viaja al centro girando y creciendo, la pantalla se oscurece y empieza a llover.
+// Luego la carta explota en el centro y recién después cae el rayo.
+// La copia que se anima es solo visual: la mano ya no tiene la carta. Con reducción de movimiento no hay nada que mostrar.
+const CARD_ZOOM_MS = 700; // viaje al centro + zoom + giro, ease-in-out
+const CARD_MAX_ZOOM = 2.4; // zoom máximo, sin salirse de la pantalla
+const CARD_HOLD_MS = 150; // la carta queda grande un momento antes de explotar
+const CARD_FADE_MS = 180; // la copia se desvanece mientras la explosión crece
+const EXPLOSION_MS = 900; // 9 cuadros de 100 ms
+const EXPLOSION_W_PX = 183; // ancho de la ventana de la explosión (61 celdas a ×3)
+const EXPLOSION_H_PX = 195; // alto de la explosión (65 celdas a ×3)
+const SCENE_FADE_MS = 600; // la pantalla se oscurece
+const RAIN_FADE_MS = 900; // la lluvia aparece de a poco
+const SCENE_OUT_MS = 900; // tiempo que tarda la escena en apagarse antes de quitarse
+const RAIN_DROPS = 70;
+
+// Oscurece la pantalla y prepara la lluvia (gotas que caen con transform). Devuelve la función que la apaga.
+function startScene() {
+  const dim = document.createElement('div');
+  dim.className = 'scene-dim';
+  const rain = document.createElement('div');
+  rain.className = 'scene-rain';
+  for (let i = 0; i < RAIN_DROPS; i++) {
+    const drop = document.createElement('span');
+    drop.className = 'rain-drop';
+    drop.style.left = `${Math.random() * 100}%`;
+    drop.style.animationDuration = `${0.5 + Math.random() * 0.4}s`;
+    drop.style.animationDelay = `${-Math.random()}s`;
+    rain.appendChild(drop);
+  }
+  document.body.append(dim, rain);
+  void dim.offsetWidth; // reflow: las transiciones arrancan desde opacity 0
+  dim.classList.add('is-on');
+  rain.classList.add('is-on');
+
+  return () => {
+    dim.classList.remove('is-on');
+    rain.classList.remove('is-on');
+    setTimeout(() => {
+      dim.remove();
+      rain.remove();
+    }, SCENE_OUT_MS);
+  };
+}
+
+// Explosión centrada en (centerX, centerY), escalada para acompañar el zoom de la carta.
+function playExplosion(centerX, centerY, scale) {
+  const boom = document.createElement('span');
+  boom.className = 'card-explosion';
+  boom.innerHTML = createSpriteSvg('cardExplosion');
+  boom.style.left = `${centerX - EXPLOSION_W_PX / 2}px`;
+  boom.style.top = `${centerY - EXPLOSION_H_PX / 2}px`;
+  boom.style.transform = `scale(${scale})`;
+  boom.querySelector('.sprite').style.animationDuration = `${EXPLOSION_MS}ms`;
+  boom.addEventListener('animationend', () => boom.remove());
+  document.body.appendChild(boom);
+}
+
+// Copia la carta, la lleva al centro con zoom y giro, la hace explotar y luego llama a `done` (el rayo).
+function playCardExit(cardEl, fromRect, done) {
+  if (reducedMotion.matches) {
+    done();
+    return;
+  }
+  const endScene = startScene();
+  const centerX = window.innerWidth / 2;
+  const centerY = window.innerHeight / 2;
+  const fromX = fromRect.left + fromRect.width / 2;
+  const fromY = fromRect.top + fromRect.height / 2;
+  const zoom = Math.min(
+    CARD_MAX_ZOOM,
+    (window.innerWidth * 0.9) / fromRect.width,
+    (window.innerHeight * 0.9) / fromRect.height,
+  );
+
+  // La copia tiene dos caras: la carta (frente) y el reverso. El giro muestra el reverso en la segunda mitad.
+  const ghost = document.createElement('div');
+  ghost.className = 'card-ghost';
+  ghost.style.width = `${fromRect.width}px`;
+  ghost.style.height = `${fromRect.height}px`;
+  ghost.style.left = `${fromRect.left}px`;
+  ghost.style.top = `${fromRect.top}px`;
+  const front = cardEl.cloneNode(true);
+  front.removeAttribute('data-uid');
+  front.classList.add('card-face', 'card-face--front');
+  const back = document.createElement('div');
+  back.className = 'card-face card-face--back';
+  back.innerHTML = '<img src="assets/card-back.webp" alt="" draggable="false">';
+  ghost.append(front, back);
+  ghost.style.setProperty('--tx', `${centerX - fromX}px`);
+  ghost.style.setProperty('--ty', `${centerY - fromY}px`);
+  ghost.style.setProperty('--zoom', zoom);
+  ghost.style.animationDuration = `${CARD_ZOOM_MS}ms`;
+  ghost.addEventListener('animationend', () => {
+    setTimeout(() => {
+      ghost.classList.add('is-fading');
+      playExplosion(centerX, centerY, zoom * 1.1);
+      setTimeout(() => ghost.remove(), CARD_FADE_MS);
+      setTimeout(done, EXPLOSION_MS);
+      setTimeout(endScene, EXPLOSION_MS + LIGHTNING_STRIKE_MS);
+    }, CARD_HOLD_MS);
+  }, { once: true });
+  document.body.appendChild(ghost);
+}
+
+// Efecto visual de cada carta, por `card.effect`. `durationMs` marca cuándo aparece el golpe en Thanos.
+// `exitFirst`: la carta explota antes de que empiece el efecto.
+const CARD_EFFECTS = {
+  shieldThrow: { play: throwShield, durationMs: SHIELD_THROW_MS },
+  lightningStrike: {
+    play: (fromRect, bossRect) => dropLightning(bossRect),
+    durationMs: LIGHTNING_STRIKE_MS,
+    exitFirst: true,
+  },
+};
 
 function handleHandClick(event) {
   const cardEl = event.target.closest('[data-uid]');
@@ -256,10 +401,15 @@ function handleHandClick(event) {
   if (!playCard(game, Number(cardEl.dataset.uid))) return;
 
   const bossHit = game.boss.hp < bossHpBefore || game.boss.shield < bossShieldBefore;
-  if (card.sprite === 'captainAmerica') {
-    // El golpe se muestra cuando el escudo llega a Thanos.
-    throwShield(fromRect, els.bossCard.getBoundingClientRect());
-    if (bossHit) setTimeout(() => flash(els.bossCard, 'is-hit'), SHIELD_THROW_MS);
+  const effect = CARD_EFFECTS[card.effect];
+  if (effect) {
+    // El golpe se muestra cuando el efecto llega a Thanos.
+    const runEffect = () => {
+      effect.play(fromRect, els.bossCard.getBoundingClientRect());
+      if (bossHit) setTimeout(() => flash(els.bossCard, 'is-hit'), effect.durationMs);
+    };
+    if (effect.exitFirst) playCardExit(cardEl, fromRect, runEffect);
+    else runEffect();
   } else if (bossHit) {
     flash(els.bossCard, 'is-hit');
   }
