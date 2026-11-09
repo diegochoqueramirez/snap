@@ -1,6 +1,7 @@
 # Cartas de Iron Man, Thor y Hulk — plan
 
 > **Status:** Propuesta
+> **Actualización:** Hulk queda descartado para la curación. La carta `potion` pasa a ser **Doctor Strange** (ver `specs/09-doctor-strange-card.md`).
 > **Relacionado con:** SPEC 05 (Capitán América)
 > **Date:** 2026-11-08
 > **Objective:** Tematizar las tres cartas que quedan genéricas (`heavyStrike`, `shield`, `potion`) con Thor, Iron Man y Hulk, usando el mismo formato que Capitán América y el sistema actual de ataque, defensa, escudo y vida.
@@ -17,7 +18,7 @@ El mazo tiene cuatro cartas y cada una ocupa un tipo que ya existe (`attack`, `d
 
 - `heavyStrike` pasa a ser **Thor** (ataque).
 - `shield` pasa a ser **Iron Man** (defensa).
-- `potion` pasa a ser **Hulk** (curación).
+- `potion` pasa a ser **Doctor Strange** (curación). Hulk queda descartado (ver SPEC 09).
 - Cada carta usa el formato hero de SPEC 05: sprite 66×94 (×2 = 132×188), nombre horneado en el arte, medallón de costo (izquierda) y medallón de valor (derecha).
 - El color del medallón de valor depende del tipo, con las clases que ya existen (`.card--attack`, `.card--defense`, `.card--heal`).
 - Un efecto visual por héroe, asociado a la carta y no al nombre.
@@ -37,13 +38,13 @@ El mazo tiene cuatro cartas y cada una ocupa un tipo que ya existe (`attack`, `d
 | `strike` | Capitán América (ya hecho, SPEC 05) | ataque | 1 | 6 | 3 | igual |
 | `heavyStrike` | **Thor** | ataque | 2 | 13 | 2 | igual, sin sprite |
 | `shield` | **Iron Man** | defensa | 2 | 11 | 2 | costo 1, valor 7 |
-| `potion` | **Hulk** | curación | 2 | 10 | 1 | costo 1, valor 7 |
+| `potion` | **Doctor Strange** (reemplaza a Hulk) | curación | 2 | 8 | 1 | costo 1, valor 7 |
 
 Razones de los números:
 
 - **Thor:** mismo daño (13) y costo (2) que hoy. Solo cambia el arte, así que el balance no se mueve.
 - **Iron Man:** el valor 11 bloquea exactamente el "Golpe del Guantelete" de Thanos (11). El costo sube a 2 para que el héroe sea una decisión, no el escudo de siempre.
-- **Hulk:** la curación sube de 7 a 10 y cuesta 2. Así la Poción genérica queda reemplazada por una carta más fuerte, con costo acorde.
+- **Doctor Strange (reemplaza a Hulk):** la curación sube de 7 a 8 y cuesta 2. Hulk como curación no encajaba con el personaje, así que se descartó (ver SPEC 09).
 
 Cambio en `STARTER_DECK` (`js/cards.js`):
 
@@ -62,7 +63,7 @@ Las cantidades no cambian (8 cartas): solo el contenido de `CARD_LIBRARY`. Si Hu
 
 - **Thor (ataque, costo 2):** inflige 13 de daño a Thanos. Es la carta de ataque más fuerte del mazo. Si Thanos tiene escudo, primero se descuenta de ese escudo, como con cualquier ataque.
 - **Iron Man (defensa, costo 2):** gana 11 de escudo hasta tu próximo turno. Ese escudo bloquea el golpe de 11 de Thanos por completo.
-- **Hulk (curación, costo 2):** recupera 10 de vida, sin pasar de tu vida máxima.
+- **Doctor Strange (curación, costo 2):** recupera 8 de vida, sin pasar de tu vida máxima. (Antes Hulk, descartado.)
 
 Resumen:
 
@@ -70,7 +71,7 @@ Resumen:
 | --- | --- | --- | --- |
 | Thor | Daño a Thanos | 13 | 2 |
 | Iron Man | Escudo para ti | 11 | 2 |
-| Hulk | Curación para ti | 10 | 2 |
+| Doctor Strange | Curación para ti | 8 | 2 |
 
 ## Formato visual
 

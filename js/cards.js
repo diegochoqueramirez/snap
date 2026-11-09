@@ -9,6 +9,7 @@ const BOSS_TURN_DELAY_MS = 800;
 const SHIELD_THROW_MS = 450;
 const LIGHTNING_STRIKE_MS = 300;
 const IRON_SHIELD_FADE_MS = 300; // fade-in y fade-out del escudo de Iron Man
+const HEAL_FLASH_MS = 300; // destello verde del panel del jugador al curar
 const BOSS_SPEECH_MS = 4000;
 const BOSS_SPEECH_CHAR_MS = 40;
 const BOSS_HIT_SPEECH_CHANCE = 0.7;
@@ -51,14 +52,16 @@ const CARD_LIBRARY = {
     value: 11,
     description: 'Activa su armadura: ganas 11 de escudo hasta tu próximo turno.',
     sprite: 'ironMan',
-    // Sin `effect`: ui.js dibuja su escudo mientras player.shield > 0.
+    effect: 'armorBurst', // zoom y explosión de la carta; el escudo lo dibuja ui.js mientras player.shield > 0
   },
   potion: {
-    name: 'Poción',
+    name: 'Doctor Strange',
     type: CARD_TYPES.HEAL,
-    cost: 1,
-    value: 7,
-    description: 'Recuperas 7 de vida.',
+    cost: 2,
+    value: 8,
+    description: 'Invoca magia de sanación: recuperas 8 de vida.',
+    sprite: 'doctorStrange',
+    effect: 'healCircle',
   },
 };
 
