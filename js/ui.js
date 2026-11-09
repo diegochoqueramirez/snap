@@ -30,6 +30,7 @@ let speechTimer = null;
 let typingTimer = null;
 let pendingSpeech = null; // frase que espera a que termine de escribirse la actual
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+let heroShieldShown = false; // si el render anterior mostró el escudo de Iron Man
 
 function render() {
   renderBoss();
@@ -189,6 +190,36 @@ function createCardElement(card) {
 function renderHand() {
   els.hand.innerHTML = '';
   game.hand.forEach((card) => els.hand.appendChild(createCardElement(card)));
+  renderHeroShields();
+}
+
+// Escudo de Iron Man: envuelve cada carta hero mientras el jugador tenga escudo.
+// Sale del estado, así sobrevive a cada render. Modo según el render anterior:
+// 'in' (recién ganado), null (ya estaba, sin animación) u 'out' (Thanos lo destruyó).
+function renderHeroShields() {
+  const shieldUp = game.player.shield > 0;
+  const wasShown = heroShieldShown;
+  heroShieldShown = shieldUp;
+  if (reducedMotion.matches || (!shieldUp && !wasShown)) return;
+
+  let mode = null;
+  if (shieldUp && !wasShown) mode = 'in';
+  if (!shieldUp) mode = 'out';
+  els.hand.querySelectorAll('.card--hero').forEach((cardEl) => addHeroShield(cardEl, mode));
+}
+
+function addHeroShield(cardEl, mode) {
+  const shield = document.createElement('span');
+  shield.className = mode ? `card__shield card__shield--${mode}` : 'card__shield';
+  shield.setAttribute('aria-hidden', 'true');
+  shield.style.setProperty('--shield-fade', `${IRON_SHIELD_FADE_MS}ms`);
+  if (mode === 'out') {
+    // La animación de cuadros es infinita: solo cuenta el fin del fade-out.
+    shield.addEventListener('animationend', (event) => {
+      if (event.animationName === 'iron-shield-out') shield.remove();
+    });
+  }
+  cardEl.appendChild(shield);
 }
 
 function renderLog() {
@@ -431,6 +462,7 @@ function handleEndTurn() {
 
 function handleRestart() {
   game = createGame();
+  heroShieldShown = false; // partida nueva: sin fade-out de un escudo viejo
   render();
 }
 
