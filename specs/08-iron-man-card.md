@@ -1,6 +1,6 @@
 # SPEC 08 — Carta de Iron Man con escudo sobre las cartas hero
 
-> **Status:** aprobado
+> **Status:** Implementado
 > **Depends on:** SPEC 05, SPEC 07
 > **Date:** 2026-11-08
 > **Objective:** Convertir la carta `shield` en Iron Man (costo 2, 11 de escudo) con el formato hero de SPEC 05 y un escudo hexagonal animado que envuelve las cartas hero de la mano mientras el jugador tenga escudo.
