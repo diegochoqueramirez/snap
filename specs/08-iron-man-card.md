@@ -1,9 +1,9 @@
-# SPEC 07 — Carta de Iron Man con escudo sobre las cartas hero
+# SPEC 08 — Carta de Iron Man con escudo sobre las cartas hero
 
 > **Status:** aprobado
-> **Depends on:** SPEC 05
+> **Depends on:** SPEC 05, SPEC 07
 > **Date:** 2026-11-08
-> **Objective:** Convertir la carta `shield` en Iron Man (costo 2, 11 de escudo) con el formato hero de SPEC 05 y un escudo hexagonal animado que aparece y se desvanece sobre las cartas hero de la mano al jugarla.
+> **Objective:** Convertir la carta `shield` en Iron Man (costo 2, 11 de escudo) con el formato hero de SPEC 05 y un escudo hexagonal animado que envuelve las cartas hero de la mano mientras el jugador tenga escudo.
 
 ## Por qué existe esta spec
 
@@ -16,6 +16,7 @@ Con un segundo héroe, el `if (card.sprite === 'captainAmerica')` de `ui.js` ya 
 - Revisión tras el Paso 4: el usuario agregó `Referencias/iron man escudo.mp4` (burbuja de hexágonos en pixel art, 800×800, 0.5s, fondo oscuro opaco `#090a15`) y pidió usarla como el escudo, sobre todas las cartas de superhéroes y con desvanecimiento. Antes estaban fuera de alcance el patrón hexagonal y cargar archivos de `Referencias/`. El usuario eligió meterlo en esta misma spec. El video **reemplaza** la barrera azul del Paso 4, aparece solo sobre las cartas **hero** de la mano, y entra y sale con desvanecimiento. El Paso 4 queda reemplazado por el Paso 5.
 - Revisión tras el Paso 5: el usuario pidió que el escudo **se quede** en las cartas hero "hasta que Thanos destruya nuestra defensa" y que **rodee toda la carta**. La mano no se descarta al terminar el turno (las cartas siguen en la mano durante el turno de Thanos) y `player.shield` vuelve a 0 al empezar el turno siguiente. Por eso el escudo se dibuja según el estado: se ve mientras `game.player.shield > 0` y se desvanece cuando vuelve a 0, después del ataque de Thanos. El video es un óvalo que envuelve la carta (más grande que ella y estirado a su proporción). Entra con fade-in, sigue en bucle y sale con fade-out. Lo dibuja `renderHand()`, no un efecto de carta: Iron Man ya no tiene `effect` y se elimina `ironBarrier`. El Paso 5 queda reemplazado por el Paso 6.
 - Revisión durante el Paso 6: con `<video>` + `mix-blend-mode: screen` se veía un rectángulo negro alrededor del óvalo en cartas deshabilitadas (opacidad + gris) y con el mouse encima (se levantan): esos estados aíslan la mezcla y el fondo opaco del video aparece. Además el fondo `#090a15` no es negro puro y dejaba un rectángulo leve. El usuario eligió convertir el video en una **tira PNG transparente**: los 5 cuadros del video (10 cuadros/s) a 80×80, con la luminosidad como opacidad (el fondo queda transparente, el relleno translúcido y las líneas opacas). Se anima con CSS `steps(5)`. El `.mp4` deja de usarse y no se copia a `assets/`.
+- Integración con `main`: mientras se hacía esta spec entró en `main` la carta de Thor como **SPEC 07** (`specs/07-thor-hammer-strike.md`), así que esta spec pasa de 07 a **08** y depende de SPEC 07. SPEC 07 también creó `CARD_EFFECTS` en `ui.js`, con otra forma: cada efecto es `{ play, durationMs, exitFirst }` y `handleHandClick` llama a `render()` al final. El usuario pidió que Thor quede **tal cual está en `main`**, así que se conserva esa versión de `CARD_EFFECTS` y de `handleHandClick` (reemplaza el refactor del Paso 1 y el `render()` adelantado del Paso 5). Iron Man no necesita entrada en `CARD_EFFECTS`: su escudo lo dibuja `renderHand()`. Se agrega `.card-ghost .card__shield { display: none; }` para que la copia de la carta que usa la salida de Thor no lleve el escudo.
 
 ## Scope
 
@@ -90,10 +91,8 @@ CARD_LIBRARY.shield = {
 En `js/ui.js`:
 
 ```js
-// Efecto visual de cada carta hero. La lógica ya se aplicó en game.js.
-const CARD_EFFECTS = {
-  shieldThrow: ({ fromRect, bossHit }) => { /* throwShield + is-hit al llegar */ },
-};
+// CARD_EFFECTS es el de SPEC 07 (Thor), sin cambios: { play, durationMs, exitFirst } por efecto.
+// Iron Man no tiene entrada.
 
 let heroShieldShown = false; // si en el render anterior había escudo (decide fade-in, fijo o fade-out)
 ```
@@ -105,7 +104,7 @@ Convenciones:
 - `game.js` no cambia: `createCard` ya copia todos los campos de `CARD_LIBRARY`.
 - El escudo sale del estado (`game.player.shield > 0`), no de un evento: como `render()` reconstruye la mano, `renderHand()` vuelve a poner los escudos en cada render. `heroShieldShown` decide el modo de cada escudo: `in` (0 → >0), fijo (>0 → >0) u `out` (>0 → 0).
 - La duración del fade llega al CSS como variable `--shield-fade` inline desde `IRON_SHIELD_FADE_MS`. No se usa `animation-duration` inline porque cada escudo tiene dos animaciones (cuadros y fade).
-- `handleHandClick` llama a `render()` antes del efecto (cambio del Paso 5, se mantiene). `fromRect` se mide antes de jugar la carta, así que `shieldThrow` no cambia.
+- `handleHandClick` es el de SPEC 07 (llama a `render()` al final); el `render()` adelantado del Paso 5 ya no hace falta porque el escudo sale del estado. `fromRect` se mide antes de jugar la carta, así que `shieldThrow` no cambia.
 - `IRON_MAN_PALETTE` vive en `js/sprites.js`, como `CAPTAIN_CARD_PALETTE`. No se agregan tokens a `:root`.
 
 ## Implementation plan
@@ -178,7 +177,9 @@ Convenciones:
 - **Yes:** el video se copia a `assets/`. `Referencias/` es solo fuente y su nombre tiene espacios.
 - **Yes:** `mix-blend-mode: screen` en vez de reexportar el video con transparencia. El fondo es casi negro, así que `screen` lo borra sin herramientas extra (no hay ffmpeg en la máquina).
 - **Yes:** opacidad con `steps()` para el desvanecimiento. Mantiene el estilo a saltos del resto de las animaciones.
-- **Yes:** `render()` antes del efecto en `handleHandClick`. Si no, `render()` reconstruye la mano y borra los videos recién creados.
+- **Yes:** `render()` antes del efecto en `handleHandClick`. Si no, `render()` reconstruye la mano y borra los videos recién creados. **Reemplazado:** con el escudo dibujado por `renderHand()` ya no hace falta, y al integrar `main` se conserva el `handleHandClick` de SPEC 07.
+- **Yes:** al integrar `main`, Thor (SPEC 07) queda tal cual: su `CARD_EFFECTS` y su `handleHandClick` se conservan y Iron Man se adapta. Lo pidió el usuario.
+- **Yes:** `.card-ghost .card__shield { display: none; }`. Sin tocar el código de Thor, evita que el escudo viaje con la copia de la carta en su salida.
 - **Corrección:** las decisiones de arriba que dicen "la mano ya se descartó" son falsas: la mano se conserva durante el turno de Thanos. Por eso ahora sí tiene sentido un escudo que se queda.
 - **Yes:** el escudo se queda hasta que Thanos destruye la defensa (lo pidió el usuario). Se implementa como `player.shield > 0`: tras el turno de Thanos el escudo siempre queda en 0 (se gasta o se reinicia al empezar el turno).
 - **No:** el aparece-y-se-va de ~1s del Paso 5. Reemplazado por el escudo fijo.

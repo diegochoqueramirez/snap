@@ -7,6 +7,7 @@ const ENERGY_PER_TURN = 3;
 const HAND_SIZE = 3;
 const BOSS_TURN_DELAY_MS = 800;
 const SHIELD_THROW_MS = 450;
+const LIGHTNING_STRIKE_MS = 300;
 const IRON_SHIELD_FADE_MS = 300; // fade-in y fade-out del escudo de Iron Man
 const BOSS_SPEECH_MS = 4000;
 const BOSS_SPEECH_CHAR_MS = 40;
@@ -35,11 +36,13 @@ const CARD_LIBRARY = {
     effect: 'shieldThrow',
   },
   heavyStrike: {
-    name: 'Golpe pesado',
+    name: 'Thor',
     type: CARD_TYPES.ATTACK,
     cost: 2,
     value: 13,
-    description: 'Inflige 13 de daño.',
+    description: 'Invoca un rayo: inflige 13 de daño.',
+    sprite: 'thor',
+    effect: 'lightningStrike',
   },
   shield: {
     name: 'Iron Man',
