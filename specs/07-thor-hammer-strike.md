@@ -1,6 +1,6 @@
 # SPEC 07 — Carta de Thor con rayo
 
-> **Status:** Aprobado
+> **Status:** Implementado
 > **Depends on:** SPEC 05
 > **Date:** 2026-11-08
 > **Objective:** Tematizar la carta `heavyStrike` con Thor (arte pixel art con nombre horneado) y un rayo que cae sobre Thanos al jugarla e inflige su daño de 13.
@@ -94,27 +94,27 @@ Convenciones:
 
 ## Acceptance criteria
 
-- [ ] `CARD_LIBRARY.heavyStrike` tiene nombre "Thor", costo 2, valor 13, `sprite: 'thor'` y `effect: 'lightningStrike'`.
-- [ ] `CARD_LIBRARY.strike` tiene `effect: 'shieldThrow'` y su nombre, costo y valor no cambian.
-- [ ] `ui.js` no tiene ningún `if` por nombre de sprite; el efecto sale de `card.effect` y de `CARD_EFFECTS`.
-- [ ] `CARD_LIBRARY` no tiene `name` duplicado en ninguna carta.
-- [ ] El sprite `thor` tiene 94 filas de 66 caracteres, y todos los caracteres existen en `THOR_PALETTE` (o son `.`).
-- [ ] La carta de Thor se ve como la referencia: arte completo, "THOR" horneado, medallón de costo (izquierda) y de daño (derecha, naranja).
-- [ ] Al jugar Thor, el rayo azul entra desde el borde superior de la pantalla y cae hasta el centro de Thanos (tira de 5 cuadros de `Referencias/rayo.gif`), y `is-hit` aparece al impacto.
-- [ ] Al jugar Thor, Thanos recibe exactamente 13 de daño (o lo que quede tras su escudo), igual que antes.
-- [ ] Al jugar Capitán América, el escudo sigue volando de la carta a Thanos igual que antes.
-- [ ] Con `prefers-reduced-motion: reduce` no se crea ningún `.lightning-strike` en el DOM y el golpe de Thanos sí aparece.
-- [ ] El rayo se quita del DOM en `animationend`.
-- [ ] Al jugar Thor, la carta viaja al centro, gira una vuelta y crece hasta 2.4× (sin pixel art), mientras la pantalla se oscurece y empieza a llover.
-- [ ] La lluvia aparece de a poco (no de golpe), y la escena se apaga al terminar el rayo.
-- [ ] Después del zoom aparece la explosión pixel art sobre el centro de la pantalla, antes de que empiece el rayo.
-- [ ] La explosión se quita del DOM al terminar, y la copia de la carta se quita al desvanecerse.
-- [ ] Con `prefers-reduced-motion: reduce` no hay copia de la carta, oscuridad, lluvia ni explosión: el rayo y el golpe se muestran como antes.
-- [ ] `game.js` no cambia (`git diff` no lo toca).
-- [ ] Los cuatro archivos JS pasan `node --check`.
-- [ ] El juego abre con `file://` sin errores en la consola.
-- [ ] A 375px de ancho la mano no desborda ni hay scroll horizontal.
-- [ ] Se puede jugar una partida completa (victoria y derrota incluidas).
+- [x] `CARD_LIBRARY.heavyStrike` tiene nombre "Thor", costo 2, valor 13, `sprite: 'thor'` y `effect: 'lightningStrike'`.
+- [x] `CARD_LIBRARY.strike` tiene `effect: 'shieldThrow'` y su nombre, costo y valor no cambian.
+- [x] `ui.js` no tiene ningún `if` por nombre de sprite; el efecto sale de `card.effect` y de `CARD_EFFECTS`.
+- [x] `CARD_LIBRARY` no tiene `name` duplicado en ninguna carta.
+- [x] El sprite `thor` tiene 94 filas de 66 caracteres, y todos los caracteres existen en `THOR_PALETTE` (o son `.`).
+- [x] La carta de Thor se ve como la referencia: arte completo, "THOR" horneado, medallón de costo (izquierda) y de daño (derecha, naranja).
+- [x] Al jugar Thor, el rayo azul entra desde el borde superior de la pantalla y cae hasta el centro de Thanos (tira de 5 cuadros de `Referencias/rayo.gif`), y `is-hit` aparece al impacto.
+- [x] Al jugar Thor, Thanos recibe exactamente 13 de daño (o lo que quede tras su escudo), igual que antes.
+- [x] Al jugar Capitán América, el escudo sigue volando de la carta a Thanos igual que antes.
+- [x] Con `prefers-reduced-motion: reduce` no se crea ningún `.lightning-strike` en el DOM y el golpe de Thanos sí aparece.
+- [x] El rayo se quita del DOM en `animationend`.
+- [x] Al jugar Thor, la carta viaja al centro, gira una vuelta y crece hasta 2.4× (sin pixel art), mientras la pantalla se oscurece y empieza a llover.
+- [x] La lluvia aparece de a poco (no de golpe), y la escena se apaga al terminar el rayo.
+- [x] Después del zoom aparece la explosión pixel art sobre el centro de la pantalla, antes de que empiece el rayo.
+- [x] La explosión se quita del DOM al terminar, y la copia de la carta se quita al desvanecerse.
+- [x] Con `prefers-reduced-motion: reduce` no hay copia de la carta, oscuridad, lluvia ni explosión: el rayo y el golpe se muestran como antes.
+- [x] `game.js` no cambia (`git diff` no lo toca).
+- [x] Los cuatro archivos JS pasan `node --check`.
+- [x] El juego abre con `file://` sin errores en la consola.
+- [x] A 375px de ancho la mano no desborda ni hay scroll horizontal.
+- [x] Se puede jugar una partida completa (victoria y derrota incluidas).
 
 ## Decisions
 
