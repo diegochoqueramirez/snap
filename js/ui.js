@@ -30,6 +30,7 @@ let speechTimer = null;
 let typingTimer = null;
 let pendingSpeech = null; // frase que espera a que termine de escribirse la actual
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+let heroShieldShown = false; // si el render anterior mostró el escudo de Iron Man
 
 function render() {
   renderBoss();
@@ -189,6 +190,36 @@ function createCardElement(card) {
 function renderHand() {
   els.hand.innerHTML = '';
   game.hand.forEach((card) => els.hand.appendChild(createCardElement(card)));
+  renderHeroShields();
+}
+
+// Escudo de Iron Man: envuelve cada carta hero mientras el jugador tenga escudo.
+// Sale del estado, así sobrevive a cada render. Modo según el render anterior:
+// 'in' (recién ganado), null (ya estaba, sin animación) u 'out' (Thanos lo destruyó).
+function renderHeroShields() {
+  const shieldUp = game.player.shield > 0;
+  const wasShown = heroShieldShown;
+  heroShieldShown = shieldUp;
+  if (reducedMotion.matches || (!shieldUp && !wasShown)) return;
+
+  let mode = null;
+  if (shieldUp && !wasShown) mode = 'in';
+  if (!shieldUp) mode = 'out';
+  els.hand.querySelectorAll('.card--hero').forEach((cardEl) => addHeroShield(cardEl, mode));
+}
+
+function addHeroShield(cardEl, mode) {
+  const shield = document.createElement('span');
+  shield.className = mode ? `card__shield card__shield--${mode}` : 'card__shield';
+  shield.setAttribute('aria-hidden', 'true');
+  shield.style.setProperty('--shield-fade', `${IRON_SHIELD_FADE_MS}ms`);
+  if (mode === 'out') {
+    // La animación de cuadros es infinita: solo cuenta el fin del fade-out.
+    shield.addEventListener('animationend', (event) => {
+      if (event.animationName === 'iron-shield-out') shield.remove();
+    });
+  }
+  cardEl.appendChild(shield);
 }
 
 function renderLog() {
@@ -245,6 +276,16 @@ function throwShield(fromRect, toRect) {
   document.body.appendChild(shield);
 }
 
+// Efecto visual de cada carta hero, según `card.effect`. La lógica ya se aplicó en game.js.
+// Cada efecto decide si muestra el golpe de Thanos.
+const CARD_EFFECTS = {
+  shieldThrow: ({ fromRect, bossHit }) => {
+    // El golpe se muestra cuando el escudo llega a Thanos.
+    throwShield(fromRect, els.bossCard.getBoundingClientRect());
+    if (bossHit) setTimeout(() => flash(els.bossCard, 'is-hit'), SHIELD_THROW_MS);
+  },
+};
+
 function handleHandClick(event) {
   const cardEl = event.target.closest('[data-uid]');
   if (!cardEl || cardEl.disabled) return;
@@ -256,14 +297,14 @@ function handleHandClick(event) {
   if (!playCard(game, Number(cardEl.dataset.uid))) return;
 
   const bossHit = game.boss.hp < bossHpBefore || game.boss.shield < bossShieldBefore;
-  if (card.sprite === 'captainAmerica') {
-    // El golpe se muestra cuando el escudo llega a Thanos.
-    throwShield(fromRect, els.bossCard.getBoundingClientRect());
-    if (bossHit) setTimeout(() => flash(els.bossCard, 'is-hit'), SHIELD_THROW_MS);
+  // Primero se dibuja: los efectos pueden agregar cosas a las cartas ya renderizadas.
+  render();
+  const effect = CARD_EFFECTS[card.effect];
+  if (effect) {
+    effect({ fromRect, bossHit });
   } else if (bossHit) {
     flash(els.bossCard, 'is-hit');
   }
-  render();
 }
 
 function handleEndTurn() {
@@ -281,6 +322,7 @@ function handleEndTurn() {
 
 function handleRestart() {
   game = createGame();
+  heroShieldShown = false; // partida nueva: sin fade-out de un escudo viejo
   render();
 }
 
