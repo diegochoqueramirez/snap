@@ -631,6 +631,131 @@ button.card:disabled {
   100% { transform: translate(var(--dx), var(--dy)) rotate(720deg); }
 }
 
+/* Rayo azul de Thor: tira de 5 cuadros (sprite lightningStrike, 500x92). Solo transform; steps(5, end)
+   avanza un cuadro de 100px por paso. La duración la pone ui.js. */
+/* Rayo que cae desde el borde superior de la pantalla hasta el centro de Thanos.
+   La ventana se desplaza con steps() (lightning-fall) y la tira de cuadros avanza dentro de ella. ui.js pone --travel y la duración. */
+.lightning-strike {
+  position: fixed;
+  z-index: 50;
+  width: 100px;
+  height: 92px;
+  overflow: hidden;
+  pointer-events: none;
+  animation-name: lightning-fall;
+  animation-timing-function: steps(5, end);
+}
+
+@keyframes lightning-fall {
+  from { transform: translateY(var(--travel)); }
+  to { transform: translateY(0); }
+}
+
+.lightning-strike .sprite {
+  display: block;
+  width: 500px;
+  height: 92px;
+  animation-name: lightning-strike;
+  animation-timing-function: steps(5, end);
+}
+
+@keyframes lightning-strike {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-500px); }
+}
+
+/* Copia de la carta de Thor que crece antes de explotar. Solo transform y, al final, opacity. */
+.card-ghost {
+  position: fixed;
+  z-index: 60;
+  margin: 0;
+  pointer-events: none;
+  transform-style: preserve-3d;
+  animation-name: card-hero-zoom;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+.card-ghost.is-fading {
+  opacity: 0;
+  transition: opacity 180ms ease-in;
+}
+
+/* La carta viaja al centro de la pantalla (--tx, --ty), crece (--zoom) y gira una vuelta completa (rotateY). ui.js pone las variables. */
+@keyframes card-hero-zoom {
+  from { transform: perspective(800px) translate(0, 0) scale(1) rotateY(0deg); }
+  to { transform: perspective(800px) translate(var(--tx), var(--ty)) scale(var(--zoom)) rotateY(360deg); }
+}
+
+/* Escena previa a la explosión: la pantalla se oscurece y empieza a llover. Entran con transición de opacity. */
+.scene-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: #05060c;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 600ms ease-out;
+}
+
+.scene-dim.is-on {
+  opacity: 0.78;
+}
+
+.scene-rain {
+  position: fixed;
+  inset: 0;
+  z-index: 41;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 900ms ease-in;
+}
+
+.scene-rain.is-on {
+  opacity: 1;
+}
+
+/* Cada gota cae con transform (lineal e infinita). Las duraciones y los retrasos los pone ui.js. */
+.rain-drop {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 14px;
+  background: rgba(190, 220, 255, 0.5);
+  animation-name: rain-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes rain-fall {
+  from { transform: translateY(-20px); }
+  to { transform: translateY(110vh); }
+}
+
+/* Explosión pixel art sobre la carta: tira de 9 cuadros (549x65 celdas a ×3). steps(9, end) avanza un cuadro por paso. */
+.card-explosion {
+  position: fixed;
+  z-index: 61;
+  width: 183px;
+  height: 195px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.card-explosion .sprite {
+  display: block;
+  width: 1647px;
+  height: 195px;
+  animation-name: card-explosion-frames;
+  animation-timing-function: steps(9, end);
+}
+
+@keyframes card-explosion-frames {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-1647px); }
+}
+
 /* Respiro idle: 3 respiros de 1.5s + 1 suspiro de 1.5s (ciclo de 6s).
    Saltos de 2px = 1 pixel del sprite a escala x2. */
 @keyframes breathe {
@@ -741,4 +866,30 @@ button.card:disabled {
   .energy {
     margin-left: 0;
   }
+}
+
+/* Caras de la copia de la carta de Thor: frente (la carta) y reverso (assets/card-back.webp).
+   Cada cara oculta su parte trasera; el reverso va girado 180° para verse de frente en la segunda mitad del giro. */
+.card-face {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.card-face--back {
+  transform: rotateY(180deg);
+  overflow: hidden;
+  border: var(--pixel) solid #000;
+  background: #0b1230;
+}
+
+.card-face--back img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
