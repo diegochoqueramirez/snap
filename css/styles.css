@@ -166,9 +166,9 @@ button.card:disabled {
   height: 100%;
 }
 
-/* Cuadros dentro de la carta: costo arriba a la izquierda (siempre) y valor a un lado según la acción.
-   Ataque: daño a la derecha. Defensa: escudo a la izquierda, debajo del costo. */
-/* Números con tipografía gruesa e itálica (no pixel), como la referencia. Solo el diseño de Thor es pixel art. */
+/* Cuadros dentro de la carta: costo arriba a la izquierda y valor arriba a la derecha.
+   El color del valor depende del tipo: naranja para ataque, azul para defensa.
+   Números con tipografía gruesa e itálica (no pixel), como la referencia. Solo el diseño de Thor es pixel art. */
 .card--hero .card__cost,
 .card--hero .card__value {
   position: absolute;
@@ -235,10 +235,8 @@ button.card:disabled {
   top: -10px;
 }
 
-.card--defense .card__value {
-  left: -8px;
-  top: 32px;
-  right: auto;
+.card--defense .card__value::after {
+  background: linear-gradient(180deg, #9fd0ff 0%, var(--defense) 55%, #2c6bc0 100%);
 }
 
 
@@ -670,6 +668,59 @@ button.card:disabled {
   100% { transform: translate(var(--dx), var(--dy)) rotate(720deg); }
 }
 
+/* Escudo de Iron Man: óvalo de hexágonos que envuelve cada carta hero mientras haya escudo.
+   Tira PNG transparente (assets/iron-man-shield.png): 5 cuadros de 80x80 sacados de
+   Referencias/iron man escudo.mp4 (10 cuadros/s). La burbuja ocupa el 80% del cuadro;
+   con 38% de sobresalida por lado el óvalo pasa por las esquinas. No bloquea los clics.
+   La duración del fade (--shield-fade) la pone ui.js; el modo 'out' se quita en animationend. */
+.card__shield {
+  --shield-overflow: 38%;
+  position: absolute;
+  top: calc(-1 * var(--shield-overflow));
+  bottom: calc(-1 * var(--shield-overflow));
+  left: calc(-1 * var(--shield-overflow));
+  right: calc(-1 * var(--shield-overflow));
+  z-index: 2;
+  background: url('../assets/iron-man-shield.png') 0 0 / 500% 100% no-repeat;
+  image-rendering: pixelated;
+  pointer-events: none;
+  animation: iron-shield-frames 500ms steps(5, end) infinite;
+}
+
+/* Fade a saltos con steps(), como el resto del juego. */
+.card__shield--in {
+  animation:
+    iron-shield-frames 500ms steps(5, end) infinite,
+    iron-shield-in var(--shield-fade, 300ms) steps(3, end);
+}
+
+.card__shield--out {
+  animation:
+    iron-shield-frames 500ms steps(5, end) infinite,
+    iron-shield-out var(--shield-fade, 300ms) steps(3, end) forwards;
+}
+
+/* Con background-size 500%, cada 25% de posición avanza un cuadro: 0, 25, 50, 75, 100%. */
+@keyframes iron-shield-frames {
+  from { background-position: 0% 0; }
+  to { background-position: 125% 0; }
+}
+
+@keyframes iron-shield-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes iron-shield-out {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* La salida de Thor clona la carta: el escudo no viaja con la copia. */
+.card-ghost .card__shield {
+  display: none;
+}
+
 /* Rayo azul de Thor: tira de 5 cuadros (sprite lightningStrike, 500x92). Solo transform; steps(5, end)
    avanza un cuadro de 100px por paso. La duración la pone ui.js. */
 /* Rayo que cae desde el borde superior de la pantalla hasta el centro de Thanos.
@@ -891,11 +942,6 @@ button.card:disabled {
 
   .card--hero .card__value {
     right: -6px;
-  }
-
-  .card--defense .card__value {
-    top: 26px;
-    left: -6px;
   }
 
 
