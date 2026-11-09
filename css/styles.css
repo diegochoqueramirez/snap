@@ -865,6 +865,422 @@ button.card:disabled {
   100% { transform: translateX(-1647px); }
 }
 
+/* Retrato de Galactus (imagen con transparencia). Respira igual que el sprite de Thanos. */
+.boss-art__image {
+  display: block;
+  width: 180px;
+  height: 180px;
+  object-fit: contain;
+  animation: breathe 6s steps(1, end) infinite;
+}
+
+.btn--small {
+  padding: 6px 10px;
+  font-size: var(--font-sm);
+}
+
+/* ---------- Entrada del nivel 2 (Galactus) ----------
+   ui.js crea .entrance y agrega una clase is-<paso> en cada paso de ENTRANCE_MS (cards.js).
+   Cada paso reemplaza la animación de sus elementos. Los fotogramas están en el spec 10. */
+.entrance {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+}
+
+.entrance.is-board {
+  /* Al final la capa se desvanece y deja ver el tablero. Termina antes de ENTRANCE_MS.end. */
+  animation: entrance-fade 500ms steps(3, end) 1200ms both;
+}
+
+.entrance > div {
+  position: absolute;
+}
+
+.entrance__bg,
+.entrance__space,
+.entrance__lines,
+.entrance__flare,
+.entrance__flash {
+  inset: 0;
+}
+
+.entrance__bg {
+  background: radial-gradient(ellipse at center, #1a1030 0%, #05030c 70%);
+}
+
+.entrance.is-board .entrance__bg {
+  animation: entrance-fade 800ms steps(4, end) both;
+}
+
+.entrance__space {
+  background: radial-gradient(ellipse at 50% 40%, #b070ff 0%, #5a1d9e 45%, #14072a 100%);
+  opacity: 0;
+}
+
+.entrance.is-space .entrance__space {
+  animation: fade-in-steps 600ms steps(3, end) both;
+}
+
+.entrance.is-board .entrance__space {
+  animation: entrance-fade 800ms steps(4, end) both;
+}
+
+.entrance__lines {
+  opacity: 0;
+  background: repeating-linear-gradient(
+    115deg,
+    transparent 0 14px,
+    rgba(230, 200, 255, 0.85) 14px 16px,
+    transparent 16px 60px
+  );
+}
+
+.entrance.is-space .entrance__lines {
+  animation: speed-lines 800ms linear both;
+}
+
+.entrance.is-board .entrance__lines {
+  animation: entrance-fade 800ms steps(4, end) both;
+}
+
+.entrance__flare {
+  top: 50%;
+  bottom: auto;
+  height: 6px;
+  margin-top: -3px;
+  background: linear-gradient(90deg, transparent, #fff, #e6d4ff, transparent);
+  transform: scaleX(0);
+  opacity: 0;
+}
+
+.entrance.is-space .entrance__flare {
+  animation: flare 600ms steps(5, end) 200ms both;
+}
+
+/* Carta de Galactus: contraportada al inicio, luego gira para mostrar el frente. */
+.entrance__card {
+  left: 50%;
+  top: 50%;
+  width: 180px;
+  height: 270px;
+  margin: -135px 0 0 -90px;
+  transform-style: preserve-3d;
+  opacity: 0;
+}
+
+.entrance__face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border: var(--pixel) solid #000;
+  border-radius: 12px;
+  background: #0b1230;
+  backface-visibility: hidden;
+}
+
+.entrance__face img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.entrance__face--front {
+  transform: rotateY(180deg);
+  background: linear-gradient(180deg, #1e5a5a 0%, #0b1230 100%);
+}
+
+.entrance__face--front img {
+  object-fit: contain;
+}
+
+.entrance__name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 6px;
+  text-align: center;
+  font-family: "Arial Black", Impact, sans-serif;
+  font-style: italic;
+  font-weight: 900;
+  font-size: 16px;
+  color: #fff;
+  text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 0 2px 0 #000, 0 -2px 0 #000;
+}
+
+.entrance.is-back .entrance__card {
+  animation: card-back-in 800ms steps(4, end) both;
+}
+
+.entrance.is-flip .entrance__card {
+  animation: card-flip 1000ms ease-in-out both;
+}
+
+.entrance.is-shrink .entrance__card {
+  animation: card-shrink 800ms ease-in-out both;
+}
+
+.entrance.is-space .entrance__card {
+  animation: card-vanish 400ms steps(2, end) both;
+}
+
+/* Portal azul sobre la carta. */
+.entrance__portal {
+  left: 50%;
+  top: 50%;
+  width: 220px;
+  height: 220px;
+  margin: -110px 0 0 -110px;
+  border: 6px solid #5ab4ff;
+  border-radius: 50%;
+  box-shadow: 0 0 24px #5ab4ff, inset 0 0 24px #5ab4ff;
+  opacity: 0;
+}
+
+.entrance.is-portal .entrance__portal {
+  animation: portal-in 400ms steps(4, end) both;
+}
+
+.entrance.is-flip .entrance__portal {
+  animation: portal-out 400ms steps(4, end) both;
+}
+
+/* Humo magenta cuando la carta vuelve a su tamaño. */
+.entrance__smoke {
+  left: 50%;
+  top: 50%;
+  width: 260px;
+  height: 260px;
+  margin: -130px 0 0 -130px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ff7ad9 0%, #b03fd0 35%, rgba(90, 20, 120, 0) 70%);
+  opacity: 0;
+}
+
+.entrance.is-shrink .entrance__smoke {
+  animation: smoke-puff 800ms steps(4, end) both;
+}
+
+/* Planeta y Galactus (la "mano" que lo destruye). */
+.entrance__planet {
+  left: 50%;
+  top: 50%;
+  width: 360px;
+  height: 360px;
+  margin: -180px 0 0 -180px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #d9c8ff, #7a4fd0 45%, #2a1458 80%);
+  box-shadow: 0 0 0 4px rgba(120, 220, 255, 0.6), 0 0 40px #5ad8ff;
+  opacity: 0;
+}
+
+.entrance.is-planet .entrance__planet {
+  animation: planet-in 800ms ease-out both;
+}
+
+.entrance.is-flash .entrance__planet {
+  animation: planet-burst 600ms ease-in both;
+}
+
+.entrance__cracks {
+  left: 50%;
+  top: 50%;
+  width: 360px;
+  height: 360px;
+  margin: -180px 0 0 -180px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(
+    from 0deg,
+    transparent 0 18deg,
+    rgba(255, 160, 40, 0.9) 18deg 20deg,
+    transparent 20deg 41deg
+  );
+  -webkit-mask: radial-gradient(circle, #000 40%, transparent 72%);
+  mask: radial-gradient(circle, #000 40%, transparent 72%);
+  opacity: 0;
+}
+
+.entrance.is-planet .entrance__cracks {
+  animation: cracks-in 800ms steps(4, end) 600ms both;
+}
+
+.entrance__hand {
+  right: 6%;
+  top: 8%;
+  width: 240px;
+  height: 240px;
+  opacity: 0;
+}
+
+.entrance__hand img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.entrance.is-planet .entrance__hand {
+  animation: hand-in 900ms ease-in 300ms both;
+}
+
+.entrance.is-flash .entrance__hand {
+  animation: hand-out 300ms steps(3, end) both;
+}
+
+/* Explosión naranja a pantalla completa, con rayos. */
+.entrance__flash {
+  background:
+    repeating-conic-gradient(from 0deg, rgba(255, 255, 255, 0.9) 0 6deg, transparent 6deg 18deg),
+    radial-gradient(circle, #ffe08a 0%, #ff8a1e 45%, #d4520a 100%);
+  opacity: 0;
+}
+
+.entrance.is-flash .entrance__flash {
+  animation: flash-orange 600ms ease-in both;
+}
+
+.entrance.is-board .entrance__flash {
+  animation: flash-out 600ms steps(3, end) both;
+}
+
+/* Cartel "Nivel 2 · Galactus" que entra desde la izquierda. */
+.entrance__banner {
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 60px;
+  margin-top: -30px;
+  display: grid;
+  place-items: center;
+  padding: 0 12px;
+  border-top: 4px solid #cfe9ff;
+  border-bottom: 4px solid #cfe9ff;
+  background: linear-gradient(90deg, #14306e, #2d7bd6 50%, #14306e);
+  color: #fff;
+  font-family: "Arial Black", Impact, sans-serif;
+  font-style: italic;
+  font-size: 18px;
+  letter-spacing: 0.08em;
+  text-align: center;
+  opacity: 0;
+}
+
+.entrance.is-board .entrance__banner {
+  animation: banner-in 800ms steps(6, end) both;
+}
+
+.entrance__skip {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 6px 10px;
+  border: var(--pixel) solid var(--muted);
+  border-radius: 0;
+  background: rgba(0, 0, 0, 0.5);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--font-sm);
+  cursor: pointer;
+}
+
+@keyframes fade-in-steps {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes entrance-fade {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes speed-lines {
+  from { opacity: 0; transform: translateX(-20%); }
+  to { opacity: 0.5; transform: translateX(20%); }
+}
+
+@keyframes flare {
+  0% { transform: scaleX(0); opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0; }
+}
+
+@keyframes card-back-in {
+  from { opacity: 0; transform: rotateY(0deg) scale(0.4); }
+  to { opacity: 1; transform: rotateY(0deg) scale(1); }
+}
+
+@keyframes card-flip {
+  from { opacity: 1; transform: rotateY(0deg) scale(1); }
+  to { opacity: 1; transform: rotateY(180deg) scale(1.6); }
+}
+
+@keyframes card-shrink {
+  from { opacity: 1; transform: rotateY(180deg) scale(1.6); }
+  to { opacity: 1; transform: rotateY(180deg) scale(0.6); }
+}
+
+@keyframes card-vanish {
+  from { opacity: 1; transform: rotateY(180deg) scale(0.6); }
+  to { opacity: 0; transform: rotateY(180deg) scale(0.3); }
+}
+
+@keyframes portal-in {
+  from { opacity: 0; transform: scale(0.2); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes portal-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(1.4); }
+}
+
+@keyframes smoke-puff {
+  0% { opacity: 0; transform: scale(0.2); }
+  60% { opacity: 0.9; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.4); }
+}
+
+@keyframes planet-in {
+  from { opacity: 0; transform: translateY(40vh); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes planet-burst {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(1.4); }
+}
+
+@keyframes cracks-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes hand-in {
+  from { opacity: 0; transform: translate(40vw, -40vh) rotate(-20deg) scale(0.6); }
+  to { opacity: 1; transform: translate(0, 0) rotate(-6deg) scale(1.4); }
+}
+
+@keyframes hand-out {
+  from { opacity: 1; transform: translate(0, 0) rotate(-6deg) scale(1.4); }
+  to { opacity: 0; transform: translate(0, 0) rotate(-6deg) scale(1.6); }
+}
+
+@keyframes flash-orange {
+  0% { opacity: 0; transform: scale(0.4); }
+  60%, 100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes flash-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes banner-in {
+  from { opacity: 1; transform: translateX(-100%); }
+  to { opacity: 1; transform: translateX(0); }
 /* Destello verde del panel al curar (Doctor Strange). Solo box-shadow; la duración la pone ui.js en --heal-ms. */
 .is-heal {
   animation: heal-glow var(--heal-ms, 300ms) ease-out;
@@ -999,6 +1415,34 @@ button.card:disabled {
 
   .card--boss {
     width: 180px;
+  }
+
+  .boss-art__image {
+    width: 150px;
+    height: 150px;
+  }
+
+  /* Entrada de Galactus: escenario más chico para que entre a 375px. */
+  .entrance__card {
+    width: 150px;
+    height: 225px;
+    margin: -112px 0 0 -75px;
+  }
+
+  .entrance__planet,
+  .entrance__cracks {
+    width: 260px;
+    height: 260px;
+    margin: -130px 0 0 -130px;
+  }
+
+  .entrance__hand {
+    width: 170px;
+    height: 170px;
+  }
+
+  .entrance__banner {
+    font-size: 14px;
   }
 
   /* 8px (tamaño nativo de la fuente) para que entren palabras como "IMAGINAR!!!!" en 140px. */

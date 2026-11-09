@@ -2,6 +2,8 @@
 
 const els = {
   bossCard: document.getElementById('boss-card'),
+  bossName: document.getElementById('boss-name'),
+  bossTitle: document.getElementById('boss-title'),
   bossArt: document.getElementById('boss-art'),
   bossHpText: document.getElementById('boss-hp-text'),
   bossHpFill: document.getElementById('boss-hp-fill'),
@@ -17,6 +19,7 @@ const els = {
   discardCount: document.getElementById('discard-count'),
   turnLabel: document.getElementById('turn-label'),
   endTurnBtn: document.getElementById('end-turn-btn'),
+  skipLevelBtn: document.getElementById('skip-level-btn'),
   logList: document.getElementById('log-list'),
   endScreen: document.getElementById('end-screen'),
   endTitle: document.getElementById('end-title'),
@@ -24,7 +27,8 @@ const els = {
   restartBtn: document.getElementById('restart-btn'),
 };
 
-let game = createGame();
+let game;
+let currentLevel = 0;
 let shownSpeechId = null;
 let speechTimer = null;
 let typingTimer = null;
@@ -153,7 +157,7 @@ function renderPlayer() {
 
   els.drawCount.textContent = game.drawPile.length;
   els.discardCount.textContent = game.discardPile.length;
-  els.turnLabel.textContent = game.phase === 'boss' ? 'Turno de Thanos…' : `Turno ${game.turn}`;
+  els.turnLabel.textContent = game.phase === 'boss' ? `Turno de ${game.boss.name}…` : `Turno ${game.turn}`;
   els.endTurnBtn.disabled = game.phase !== 'player';
 }
 
@@ -241,8 +245,8 @@ function renderEndScreen() {
   els.endScreen.dataset.result = game.phase;
   els.endTitle.textContent = won ? '¡Victoria!' : 'Derrota';
   els.endText.textContent = won
-    ? `Derrotaste a Thanos en ${game.turn} ${game.turn === 1 ? 'turno' : 'turnos'}.`
-    : 'Thanos chasqueó los dedos… Inténtalo de nuevo.';
+    ? `Derrotaste a ${game.boss.name} en ${game.turn} ${game.turn === 1 ? 'turno' : 'turnos'}.`
+    : `${game.boss.name} te ha derrotado. Inténtalo de nuevo.`;
   els.restartBtn.focus();
 }
 
@@ -536,9 +540,127 @@ function handleEndTurn() {
 }
 
 function handleRestart() {
-  game = createGame();
+  startLevel(currentLevel);
+}
+
+// Pone nombre, título y retrato del jefe del nivel actual. El retrato no depende del estado.
+function renderBossHeader() {
+  const { boss } = LEVELS[currentLevel];
+  els.bossName.textContent = boss.name;
+  els.bossTitle.textContent = boss.title;
+  if (boss.image) {
+    els.bossArt.innerHTML = `<img class="boss-art__image" src="${boss.image}" alt="" draggable="false">`;
+    return;
+  }
+  // Dos frames apilados; el de destello se muestra solo desde CSS.
+  els.bossArt.innerHTML = `
+    <span class="boss-art__frame">${createSpriteSvg('thanos')}</span>
+    <span class="boss-art__frame boss-art__frame--glow">${createSpriteSvg('thanosGlow')}</span>
+  `;
+}
+
+// Empieza un nivel. Si tiene entrada y no hay movimiento reducido, la animación tapa el tablero
+// y la frase del jefe aparece al terminarla.
+function startLevel(index) {
+  cancelEntrance();
+  currentLevel = index;
+  game = createGame(index);
   heroShieldShown = false; // partida nueva: sin fade-out de un escudo viejo
+  stopSpeech();
+  shownSpeechId = null;
+  renderBossHeader();
+
+  if (!LEVELS[index].hasEntrance || reducedMotion.matches) {
+    render();
+    return;
+  }
+  // Marcar la frase como ya vista evita que la burbuja aparezca bajo la animación.
+  shownSpeechId = game.boss.speech.id;
   render();
+  playBossEntrance(() => {
+    shownSpeechId = null;
+    render();
+  });
+}
+
+// Entrada del jefe: capa a pantalla completa con los pasos de ENTRANCE_MS.
+// Cada paso agrega una clase `is-<paso>`; el CSS (styles.css) dibuja y anima esa parte.
+// Clic o Escape la saltan. `entranceDone` se llama una sola vez al terminar o saltar.
+let entranceEl = null;
+let entranceTimers = [];
+let entranceDone = null;
+
+function playBossEntrance(done) {
+  const { boss } = LEVELS[currentLevel];
+  const el = document.createElement('div');
+  el.className = 'entrance';
+  el.setAttribute('role', 'dialog');
+  el.setAttribute('aria-label', `Entrada de ${boss.name}`);
+  el.innerHTML = `
+    <div class="entrance__bg"></div>
+    <div class="entrance__space"></div>
+    <div class="entrance__lines"></div>
+    <div class="entrance__portal"></div>
+    <div class="entrance__smoke"></div>
+    <div class="entrance__flare"></div>
+    <div class="entrance__planet"></div>
+    <div class="entrance__cracks"></div>
+    <div class="entrance__hand"><img src="${boss.image}" alt="" draggable="false"></div>
+    <div class="entrance__flash"></div>
+    <div class="entrance__card">
+      <div class="entrance__face entrance__face--back"><img src="assets/card-back.webp" alt="" draggable="false"></div>
+      <div class="entrance__face entrance__face--front">
+        <img src="${boss.image}" alt="" draggable="false">
+        <span class="entrance__name">${boss.name.toUpperCase()}</span>
+      </div>
+    </div>
+    <div class="entrance__banner">Nivel ${currentLevel + 1} · ${boss.name}</div>
+    <button type="button" class="entrance__skip">Saltar</button>
+  `;
+  el.addEventListener('click', finishEntrance);
+  document.body.appendChild(el);
+  document.addEventListener('keydown', onEntranceKey);
+
+  entranceEl = el;
+  entranceDone = done;
+  Object.entries(ENTRANCE_MS).forEach(([step, at]) => {
+    if (step === 'end') return;
+    entranceTimers.push(setTimeout(() => {
+      el.classList.add(`is-${step}`);
+      if (step === 'board') {
+        const [centerX, centerY] = bossCenter();
+        playExplosion(centerX, centerY, 1.4);
+      }
+    }, at));
+  });
+  entranceTimers.push(setTimeout(finishEntrance, ENTRANCE_MS.end));
+}
+
+function bossCenter() {
+  const rect = els.bossCard.getBoundingClientRect();
+  return [rect.left + rect.width / 2, rect.top + rect.height / 2];
+}
+
+function onEntranceKey(event) {
+  if (event.key === 'Escape') finishEntrance();
+}
+
+// Quita la entrada sin llamar a `done` (al empezar otro nivel).
+function cancelEntrance() {
+  entranceTimers.forEach(clearTimeout);
+  entranceTimers = [];
+  document.removeEventListener('keydown', onEntranceKey);
+  if (entranceEl) entranceEl.remove();
+  entranceEl = null;
+  entranceDone = null;
+}
+
+// Termina la entrada (al final o al saltarla) y deja jugar.
+function finishEntrance() {
+  if (!entranceEl) return;
+  const done = entranceDone;
+  cancelEntrance();
+  done();
 }
 
 [els.bossCard, els.playerPanel].forEach((el) => {
@@ -547,11 +669,6 @@ function handleRestart() {
 els.hand.addEventListener('click', handleHandClick);
 els.endTurnBtn.addEventListener('click', handleEndTurn);
 els.restartBtn.addEventListener('click', handleRestart);
+els.skipLevelBtn.addEventListener('click', () => startLevel(1));
 
-// El retrato no depende del estado: se dibuja una sola vez.
-// Dos frames apilados; el de destello se muestra solo desde CSS.
-els.bossArt.innerHTML = `
-  <span class="boss-art__frame">${createSpriteSvg('thanos')}</span>
-  <span class="boss-art__frame boss-art__frame--glow">${createSpriteSvg('thanosGlow')}</span>
-`;
-render();
+startLevel(0);

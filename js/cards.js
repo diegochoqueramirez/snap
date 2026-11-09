@@ -1,8 +1,7 @@
-// Datos del juego: constantes de balance, cartas del jugador y acciones de Thanos.
+// Datos del juego: constantes de balance, cartas del jugador, niveles y jefes.
 // Este archivo no contiene lógica ni toca el DOM.
 
 const PLAYER_MAX_HP = 30;
-const BOSS_MAX_HP = 70;
 const ENERGY_PER_TURN = 3;
 const HAND_SIZE = 3;
 const BOSS_TURN_DELAY_MS = 800;
@@ -13,6 +12,20 @@ const HEAL_FLASH_MS = 300; // destello verde del panel del jugador al curar
 const BOSS_SPEECH_MS = 4000;
 const BOSS_SPEECH_CHAR_MS = 40;
 const BOSS_HIT_SPEECH_CHANCE = 0.7;
+
+// Entrada del nivel 2 (Galactus). Momento en que empieza cada paso, en ms desde que aparece la pantalla.
+// Los pasos se encadenan en ui.js; la duración de cada animación está en styles.css.
+const ENTRANCE_MS = {
+  back: 0, // contraportada de la carta en el centro
+  portal: 800, // anillo y columna azul
+  flip: 1200, // la carta gira y muestra a Galactus
+  shrink: 2200, // la carta vuelve a su tamaño y sale humo
+  space: 3000, // tránsito cósmico con líneas de velocidad
+  planet: 3800, // Galactus aparece sobre un planeta
+  flash: 5600, // explosión naranja
+  board: 6200, // vuelve el tablero y explota la carta del jefe
+  end: 8000, // fin de la entrada
+};
 
 const CARD_TYPES = {
   ATTACK: 'attack',
@@ -76,65 +89,125 @@ const STARTER_DECK = [
   'potion',
 ];
 
-const BOSS = {
-  name: 'Thanos',
-  title: 'El Titán Loco',
-  maxHp: BOSS_MAX_HP,
-};
-
-// Thanos repite estas acciones en orden. La siguiente se muestra como "intención".
-// `lines`: frases que dice al ejecutar la acción (una al azar).
-const BOSS_ACTIONS = [
+// Cada nivel tiene un jefe. `actions` se repiten en ciclo; la siguiente se muestra como "intención".
+// `image`: null usa el retrato pixel art (sprite); una ruta usa esa imagen.
+// `lines` de cada acción: frases que dice al ejecutarla (una al azar).
+const LEVELS = [
   {
-    name: 'Puñetazo del Titán',
-    type: CARD_TYPES.ATTACK,
-    value: 8,
-    lines: [
-      'Siente el peso de un titán.',
-      'Arrodíllate.',
-      'Esto apenas empieza.',
-    ],
+    hasEntrance: false,
+    boss: {
+      name: 'Thanos',
+      title: 'El Titán Loco',
+      image: null,
+      maxHp: 70,
+      introLines: ['LO VOY A GOZAR COMO NO LO PUEDES IMAGINAR!!!!'],
+      hitLines: [
+        '¿Eso fue un golpe?',
+        'Me haces cosquillas.',
+        'Interesante… sigue intentándolo.',
+        'Pagarás por eso.',
+        'Duele… pero no lo suficiente.',
+      ],
+      actions: [
+        {
+          name: 'Puñetazo del Titán',
+          type: CARD_TYPES.ATTACK,
+          value: 8,
+          lines: [
+            'Siente el peso de un titán.',
+            'Arrodíllate.',
+            'Esto apenas empieza.',
+          ],
+        },
+        {
+          name: 'Golpe del Guantelete',
+          type: CARD_TYPES.ATTACK,
+          value: 11,
+          lines: [
+            'El guantelete no perdona.',
+            'Cada gema, un golpe.',
+            'Tu resistencia es inútil.',
+          ],
+        },
+        {
+          name: 'Armadura del Titán',
+          type: CARD_TYPES.DEFENSE,
+          value: 10,
+          lines: [
+            '¿Eso es todo lo que tienes?',
+            'Nada puede atravesarme.',
+            'Paciencia… mi turno llegará.',
+          ],
+        },
+        {
+          name: 'Chasquido',
+          type: CARD_TYPES.ATTACK,
+          value: 20,
+          lines: [
+            'Soy inevitable.',
+            'Con un chasquido, todo termina.',
+            'El equilibrio exige un sacrificio.',
+          ],
+        },
+      ],
+    },
   },
   {
-    name: 'Golpe del Guantelete',
-    type: CARD_TYPES.ATTACK,
-    value: 11,
-    lines: [
-      'El guantelete no perdona.',
-      'Cada gema, un golpe.',
-      'Tu resistencia es inútil.',
-    ],
-  },
-  {
-    name: 'Armadura del Titán',
-    type: CARD_TYPES.DEFENSE,
-    value: 10,
-    lines: [
-      '¿Eso es todo lo que tienes?',
-      'Nada puede atravesarme.',
-      'Paciencia… mi turno llegará.',
-    ],
-  },
-  {
-    name: 'Chasquido',
-    type: CARD_TYPES.ATTACK,
-    value: 20,
-    lines: [
-      'Soy inevitable.',
-      'Con un chasquido, todo termina.',
-      'El equilibrio exige un sacrificio.',
-    ],
+    hasEntrance: true,
+    boss: {
+      name: 'Galactus',
+      title: 'Devorador de Mundos',
+      image: 'assets/galactus.webp',
+      maxHp: 100,
+      introLines: ['¡Soy Galactus, devorador de mundos!'],
+      hitLines: [
+        'Un insecto que insiste.',
+        'Tu luz es apenas una chispa.',
+        'Ni eso me detiene.',
+        'Sigue intentándolo.',
+      ],
+      actions: [
+        {
+          name: 'Golpe Cósmico',
+          type: CARD_TYPES.ATTACK,
+          value: 10,
+          lines: [
+            'Tu mundo es insignificante.',
+            'El cosmos no espera.',
+            'Eres polvo de estrellas.',
+          ],
+        },
+        {
+          name: 'Hambre Cósmica',
+          type: CARD_TYPES.ATTACK,
+          value: 14,
+          lines: [
+            'Mi hambre no tiene fin.',
+            'Cada mundo me alimenta.',
+            'Ni tu planeta me saciará.',
+          ],
+        },
+        {
+          name: 'Campo de Energía',
+          type: CARD_TYPES.DEFENSE,
+          value: 12,
+          lines: [
+            'Ningún poder me toca.',
+            'Soy más antiguo que tus estrellas.',
+            'Tu furia me fortalece.',
+          ],
+        },
+        {
+          name: 'Devorar el Mundo',
+          type: CARD_TYPES.ATTACK,
+          value: 25,
+          lines: [
+            'Devoraré tu mundo.',
+            'Este planeta será mi próximo festín.',
+            'Todo se convierte en mí.',
+          ],
+        },
+      ],
+    },
   },
 ];
-
-// Frases de Thanos que no dependen de su acción.
-const BOSS_LINES = {
-  intro: ['LO VOY A GOZAR COMO NO LO PUEDES IMAGINAR!!!!'],
-  hit: [
-    '¿Eso fue un golpe?',
-    'Me haces cosquillas.',
-    'Interesante… sigue intentándolo.',
-    'Pagarás por eso.',
-    'Duele… pero no lo suficiente.',
-  ],
-};

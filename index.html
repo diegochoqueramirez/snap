@@ -12,9 +12,9 @@
     <section class="boss-area" aria-label="Thanos">
       <div class="speech" id="boss-speech" hidden aria-live="polite"></div>
       <article class="card card--boss" id="boss-card">
-        <span class="card__name card__name--boss">Thanos</span>
+        <span class="card__name card__name--boss" id="boss-name">Thanos</span>
         <div class="boss-art" id="boss-art" aria-hidden="true"></div>
-        <span class="card__title">El Titán Loco</span>
+        <span class="card__title" id="boss-title">El Titán Loco</span>
         <div class="stat">
           <div class="stat__row">
             <span>Vida</span>
@@ -54,6 +54,7 @@
           <span>Descarte: <strong id="discard-count">0</strong></span>
         </div>
         <span class="turn-label" id="turn-label"></span>
+        <button type="button" class="btn btn--small" id="skip-level-btn">Saltar al nivel 2</button>
         <button type="button" class="btn" id="end-turn-btn">Terminar turno</button>
       </div>
     </section>
