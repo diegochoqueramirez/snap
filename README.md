@@ -2,7 +2,7 @@
 
 Juego de cartas por turnos para un solo jugador que corre en el navegador. Tú juegas tus cartas contra un boss: **Thanos**, que también es una carta.
 
-> Estado: MVP en desarrollo. Por ahora hay **un solo nivel**.
+> Estado: MVP en desarrollo. Hay **dos niveles**: el 1 contra Thanos y el 2 contra Galactus (con animación de entrada).
 
 ## Tecnologías
 
@@ -68,7 +68,8 @@ python3 -m http.server 8000
 
 ## Roadmap
 
-- [ ] Nivel 1 jugable contra Thanos
+- [x] Nivel 1 jugable contra Thanos
+- [x] Nivel 2 contra Galactus con animación de entrada (SPEC 09)
 - [ ] Animaciones básicas al jugar cartas y recibir daño
 - [ ] Más cartas y habilidades especiales de Thanos (Gemas del Infinito)
 - [ ] Más niveles / bosses

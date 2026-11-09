@@ -4,7 +4,7 @@ Guía para trabajar en este repositorio.
 
 ## Proyecto
 
-Juego de cartas por turnos, **un solo jugador** contra un boss (**Thanos**, representado también como carta). Es un **MVP**: priorizar que funcione y sea simple antes que agregar features. Por ahora solo existe el **nivel 1**.
+Juego de cartas por turnos, **un solo jugador** contra un boss (**Thanos**, representado también como carta). Es un **MVP**: priorizar que funcione y sea simple antes que agregar features. Hay **dos niveles**: el 1 (Thanos) y el 2 (Galactus, con animación de entrada). Los datos de cada jefe están en `LEVELS` de `js/cards.js`.
 
 ## Stack y restricciones
 

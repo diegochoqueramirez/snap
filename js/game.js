@@ -19,7 +19,8 @@ function createCard(cardId) {
   return { uid: nextCardUid++, id: cardId, ...CARD_LIBRARY[cardId] };
 }
 
-function createGame() {
+function createGame(levelIndex = 0) {
+  const boss = LEVELS[levelIndex].boss;
   const state = {
     turn: 0,
     phase: 'player', // 'player' | 'boss' | 'won' | 'lost'
@@ -31,11 +32,13 @@ function createGame() {
       maxEnergy: ENERGY_PER_TURN,
     },
     boss: {
-      name: BOSS.name,
-      title: BOSS.title,
-      hp: BOSS.maxHp,
-      maxHp: BOSS.maxHp,
+      name: boss.name,
+      title: boss.title,
+      hp: boss.maxHp,
+      maxHp: boss.maxHp,
       shield: 0,
+      actions: boss.actions,
+      hitLines: boss.hitLines,
       actionIndex: 0,
       speech: null, // { id, text } — última frase dicha
     },
@@ -45,8 +48,8 @@ function createGame() {
     log: [],
   };
 
-  addLog(state, '¡Thanos te desafía! Derrótalo antes de que te derrote a ti.', 'info');
-  bossSay(state, BOSS_LINES.intro);
+  addLog(state, `¡${boss.name} te desafía! Derrótalo antes de que te derrote a ti.`, 'info');
+  bossSay(state, boss.introLines);
   startPlayerTurn(state);
   return state;
 }
@@ -63,7 +66,8 @@ function addLog(state, text, kind) {
 }
 
 function getBossIntent(state) {
-  return BOSS_ACTIONS[state.boss.actionIndex % BOSS_ACTIONS.length];
+  const { actions, actionIndex } = state.boss;
+  return actions[actionIndex % actions.length];
 }
 
 function drawCard(state) {
@@ -86,14 +90,14 @@ function startPlayerTurn(state) {
     // roba hasta completar la mano
   }
   addLog(state, `— Turno ${state.turn} —`, 'turn');
-  addLog(state, describeBossIntent(getBossIntent(state)), 'intent');
+  addLog(state, describeBossIntent(state.boss.name, getBossIntent(state)), 'intent');
 }
 
-function describeBossIntent(action) {
+function describeBossIntent(bossName, action) {
   const effect = action.type === CARD_TYPES.ATTACK
     ? `atacará por ${action.value}`
     : `ganará ${action.value} de escudo`;
-  return `Thanos prepara ${action.name}: ${effect}.`;
+  return `${bossName} prepara ${action.name}: ${effect}.`;
 }
 
 // Aplica daño respetando el escudo. Devuelve cuánto se bloqueó y cuánto entró.
@@ -126,9 +130,9 @@ function playCard(state, uid) {
 
   if (card.type === CARD_TYPES.ATTACK) {
     const { damage, blocked } = applyDamage(state.boss, card.value);
-    addLog(state, `Usas ${card.name}: Thanos recibe ${describeDamage(damage, blocked)}.`, 'player');
+    addLog(state, `Usas ${card.name}: ${state.boss.name} recibe ${describeDamage(damage, blocked)}.`, 'player');
     if (state.boss.hp > 0 && Math.random() < BOSS_HIT_SPEECH_CHANCE) {
-      bossSay(state, BOSS_LINES.hit);
+      bossSay(state, state.boss.hitLines);
     }
   } else if (card.type === CARD_TYPES.DEFENSE) {
     state.player.shield += card.value;
@@ -158,10 +162,10 @@ function runBossTurn(state) {
   const action = getBossIntent(state);
   if (action.type === CARD_TYPES.ATTACK) {
     const { damage, blocked } = applyDamage(state.player, action.value);
-    addLog(state, `Thanos usa ${action.name}: recibes ${describeDamage(damage, blocked)}.`, 'boss');
+    addLog(state, `${state.boss.name} usa ${action.name}: recibes ${describeDamage(damage, blocked)}.`, 'boss');
   } else if (action.type === CARD_TYPES.DEFENSE) {
     state.boss.shield += action.value;
-    addLog(state, `Thanos usa ${action.name}: gana ${action.value} de escudo.`, 'boss');
+    addLog(state, `${state.boss.name} usa ${action.name}: gana ${action.value} de escudo.`, 'boss');
   }
   bossSay(state, action.lines);
   state.boss.actionIndex++;
@@ -173,9 +177,9 @@ function runBossTurn(state) {
 function checkGameOver(state) {
   if (state.boss.hp <= 0) {
     state.phase = 'won';
-    addLog(state, '¡Thanos ha caído! Ganaste.', 'info');
+    addLog(state, `¡${state.boss.name} ha caído! Ganaste.`, 'info');
   } else if (state.player.hp <= 0) {
     state.phase = 'lost';
-    addLog(state, 'Has sido derrotado por Thanos.', 'info');
+    addLog(state, `Has sido derrotado por ${state.boss.name}.`, 'info');
   }
 }
