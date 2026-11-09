@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "arial",
+        "createdAt": "2026-11-09T00:26:10.302Z",
+        "reason": "Intentional: Arial Black heavy italic numerals in Thor hero card replicate Referencias/thor.webp; the user asked for fidelity to that reference (system font, no web font)"
+      }
+    ]
+  }
+}
